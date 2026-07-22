@@ -85,6 +85,13 @@
     font-size: 18px; cursor:pointer;
   }
   .icon-btn:active{ transform: scale(0.94); }
+  .customize-btn{
+    display:flex; align-items:center; gap: 6px; width:auto; height:auto;
+    padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(255,117,24,0.4);
+    background: rgba(255,117,24,0.14); color: var(--pumpkin);
+    font-weight: 800; font-size: 13px; cursor:pointer;
+  }
+  .customize-btn:active{ transform: scale(0.94); }
 
   /* ---------- SPLASH ---------- */
   #splash{ align-items:center; justify-content:center; text-align:center; gap: 22px; position: relative; }
@@ -181,7 +188,7 @@
 
   <!-- SPLASH -->
   <section id="splash" class="screen active">
-    <button class="icon-btn admin-corner" data-action="open-admin" aria-label="Parent settings">⚙️</button>
+    <button class="customize-btn admin-corner" data-action="open-admin" aria-label="Parent settings">⚙️ Customize</button>
     <div class="pumpkin-wrap">
       <!--
         Drop your own animated GIF in this same folder and point the src at it —
@@ -213,7 +220,7 @@
   <section id="tasklist" class="screen">
     <div class="topbar">
       <span class="brand">🎃 Trick or Chores</span>
-      <button class="icon-btn" data-action="open-admin" aria-label="Parent settings">⚙️</button>
+      <button class="customize-btn" data-action="open-admin" aria-label="Parent settings">⚙️ Customize</button>
     </div>
     <div class="progress-wrap">
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -351,7 +358,7 @@
     document.getElementById("progressLabel").textContent = done + " of " + total + " done";
 
     if(total === 0){
-      list.innerHTML = '<div class="empty-state">No chores yet. A parent can add some from the ⚙️ menu.</div>';
+      list.innerHTML = '<div class="empty-state">No chores yet. Tap ⚙️ Customize above to add some.</div>';
       return;
     }
 
