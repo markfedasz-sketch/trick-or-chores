@@ -487,6 +487,10 @@
 
     direction = direction || "forward";
 
+    if(id === "splash"){
+      playSound("creepybells.mp3");
+    }
+
     // clean up any screen left mid-transition by a superseded navigation
     Object.keys(screens).forEach(function(k){
       if(k !== fromId && k !== id){
@@ -902,6 +906,7 @@
   enableChoreDrag();
   renderTaskList();
   updateMuteButton();
+  playSound("creepybells.mp3");
 })();
 </script>
 </body>
