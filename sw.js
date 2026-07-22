@@ -1,35 +1,18 @@
-const CACHE = "trick-or-chores-v2";
-const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./splash.gif"];
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) =>
-      Promise.all(
-        ASSETS.map((url) => cache.add(url).catch(() => {}))
-      )
-    )
-  );
+// Kill switch: this app no longer uses a service worker or page caching.
+// Any previously installed copy of this file removes its caches, unregisters
+// itself, and reloads open tabs so the page loads straight from the network.
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
-  event.respondWith(
-    fetch(event.request)
-      .then((resp) => {
-        const copy = resp.clone();
-        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-        return resp;
+    caches.keys()
+      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      .then(() => self.registration.unregister())
+      .then(() => self.clients.matchAll())
+      .then((clients) => {
+        clients.forEach((client) => client.navigate(client.url));
       })
-      .catch(() => caches.match(event.request))
   );
 });

@@ -160,6 +160,13 @@
   .reward-label{ font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slime); font-weight: 800; }
   .reward-text{ font-size: 22px; font-weight: 800; margin-top: 8px; color: var(--bone); }
 
+  .confetti-layer{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index: 999; }
+  .confetti-piece{ position:absolute; top:-14px; border-radius: 2px; animation: confetti-fall linear forwards; }
+  @keyframes confetti-fall{
+    0%{ transform: translateY(0) rotate(0deg); opacity: 1; }
+    100%{ transform: translateY(110vh) rotate(720deg); opacity: 0.9; }
+  }
+
   /* ---------- ADMIN ---------- */
   #admin{ gap: 14px; overflow-y:auto; }
   .field-label{ font-size: 13px; color: var(--bone-dim); font-weight: 700; margin-bottom: 6px; display:block; }
@@ -180,6 +187,7 @@
 </style>
 </head>
 <body>
+<div id="confettiLayer" class="confetti-layer"></div>
 <div id="app">
 
   <!-- SPLASH -->
@@ -293,13 +301,25 @@
 
   var STORAGE_KEY = "trickOrChores:v1";
 
+  var exampleRewards = [
+    "Pick tonight's Halloween movie 🎬",
+    "Stay up 30 minutes later 🌙",
+    "An extra piece of candy 🍬",
+    "Choose tomorrow's dinner 🍕",
+    "Skip one chore tomorrow 🧹",
+    "Family game night 🎲"
+  ];
+  function pickExampleReward(){
+    return exampleRewards[Math.floor(Math.random() * exampleRewards.length)];
+  }
+
   var defaultState = {
     tasks: [
       { id: "t1", name: "Wash the dishes", done: false },
       { id: "t2", name: "Clean your room", done: false },
       { id: "t3", name: "Take out the trash", done: false }
     ],
-    reward: "Pick tonight's Halloween movie 🎬",
+    reward: exampleRewards[0],
     pin: "1234"
   };
 
@@ -376,9 +396,16 @@
       }
       list.appendChild(card);
     });
+  }
 
+  function goToTaskListOrReward(){
+    renderTaskList();
+    var done = state.tasks.filter(function(t){ return t.done; }).length;
+    var total = state.tasks.length;
     if(total > 0 && done === total){
       openRewardGate();
+    } else {
+      show("tasklist");
     }
   }
 
@@ -481,17 +508,33 @@
     if(t) t.done = true;
     saveState();
     activeTaskId = null;
-    renderTaskList();
-    var allDone = state.tasks.length > 0 && state.tasks.every(function(x){ return x.done; });
-    if(!allDone){
-      show("tasklist");
-    }
+    goToTaskListOrReward();
   }
 
   // ---------- REWARD ----------
   function goToReward(){
-    document.getElementById("rewardText").textContent = state.reward || "Surprise!";
+    document.getElementById("rewardText").textContent = state.reward || pickExampleReward();
     show("reward");
+    spawnConfetti();
+  }
+
+  function spawnConfetti(){
+    var layer = document.getElementById("confettiLayer");
+    if(!layer) return;
+    layer.innerHTML = "";
+    var colors = ["#FF7518", "#FFD08A", "#7CFC6E", "#F3EAD8", "#C43A31", "#FF9A44"];
+    for(var i = 0; i < 60; i++){
+      var piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      piece.style.left = (Math.random() * 100) + "%";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (6 + Math.random() * 6) + "px";
+      piece.style.height = (10 + Math.random() * 8) + "px";
+      piece.style.animationDuration = (2.2 + Math.random() * 1.6) + "s";
+      piece.style.animationDelay = (Math.random() * 0.4) + "s";
+      layer.appendChild(piece);
+    }
+    setTimeout(function(){ layer.innerHTML = ""; }, 4200);
   }
 
   function restartRound(){
@@ -533,12 +576,11 @@
 
   function saveAdmin(){
     state.tasks = state.tasks.filter(function(t){ return t.name.trim().length > 0; });
-    state.reward = document.getElementById("adminReward").value.trim() || "Surprise!";
+    state.reward = document.getElementById("adminReward").value.trim() || pickExampleReward();
     var pin = document.getElementById("adminPin").value.trim();
     state.pin = /^\d{4}$/.test(pin) ? pin : state.pin;
     saveState();
-    renderTaskList();
-    show("tasklist");
+    goToTaskListOrReward();
   }
 
   // ---------- EVENTS ----------
@@ -547,7 +589,7 @@
     if(!btn) return;
     var action = btn.getAttribute("data-action");
     switch(action){
-      case "splash-yes": renderTaskList(); show("tasklist"); break;
+      case "splash-yes": goToTaskListOrReward(); break;
       case "splash-no": splashNo(); break;
       case "open-admin-gate": openAdminGate(); break;
       case "close-admin": show(state.tasks.length ? "tasklist" : "splash"); break;
@@ -564,14 +606,15 @@
     }
   });
 
-  // register service worker for installability / offline
+  // unregister any previously installed service worker so pages are never cached
   if("serviceWorker" in navigator){
-    window.addEventListener("load", function(){
-      navigator.serviceWorker.register("sw.js").catch(function(){});
-    });
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(reg){ reg.unregister(); });
+    }).catch(function(){});
   }
 
   renderTaskList();
+  show("splash");
 })();
 </script>
 </body>
