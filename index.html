@@ -639,6 +639,14 @@
     }).join("");
     show("reward", direction || "forward");
     spawnConfetti(60);
+    playSound("BadWolf.mp3");
+  }
+
+  function playSound(src){
+    try{
+      var audio = new Audio(src);
+      audio.play().catch(function(){});
+    }catch(e){}
   }
 
   function spawnConfetti(count){
