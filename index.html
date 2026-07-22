@@ -528,6 +528,7 @@
   function splashNo(){
     document.getElementById("spookyNo").textContent = noMessages[gone % noMessages.length];
     gone++;
+    playSound("laugh.mp3");
   }
 
   // ---------- TASK LIST ----------
@@ -852,7 +853,7 @@
     if(!btn) return;
     var action = btn.getAttribute("data-action");
     switch(action){
-      case "splash-yes": goToTaskListOrReward("forward"); break;
+      case "splash-yes": playSound("StartGamePing.mp3"); goToTaskListOrReward("forward"); break;
       case "splash-no": splashNo(); break;
       case "open-admin": openAdmin(); break;
       case "close-admin": show(state.tasks.length ? "tasklist" : "splash", "back"); break;
