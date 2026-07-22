@@ -237,7 +237,7 @@
   <section id="taskdetail" class="screen">
     <div class="task-big-icon">🧹</div>
     <h2 id="taskDetailName">Task</h2>
-    <p class="task-hint">Do the chore, then hand the phone back to a parent to check it off.</p>
+    <p class="task-hint" id="taskDetailHint">Do the chore, then come back and check it off.</p>
     <button class="btn btn-yes btn-wide btn-half" data-action="task-done">I did it!</button>
     <button class="btn-ghost btn-wide" data-action="task-back">Back to list</button>
   </section>
@@ -421,6 +421,10 @@
     var t = state.tasks.find(function(x){ return x.id === id; });
     if(!t) return;
     document.getElementById("taskDetailName").textContent = t.name;
+    var remaining = state.tasks.filter(function(x){ return !x.done; }).length;
+    document.getElementById("taskDetailHint").textContent = remaining <= 1
+      ? "Do the chore, then hand the phone back to a parent to check it off."
+      : "Do the chore, then come back and check it off.";
     show("taskdetail");
   }
 
