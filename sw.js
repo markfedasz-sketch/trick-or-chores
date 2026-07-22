@@ -1,4 +1,4 @@
-const CACHE = "trick-or-chores-v1";
+const CACHE = "trick-or-chores-v2";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./splash.gif"];
 
 self.addEventListener("install", (event) => {
@@ -24,17 +24,12 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return (
-        cached ||
-        fetch(event.request)
-          .then((resp) => {
-            const copy = resp.clone();
-            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-            return resp;
-          })
-          .catch(() => cached)
-      );
-    })
+    fetch(event.request)
+      .then((resp) => {
+        const copy = resp.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+        return resp;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
