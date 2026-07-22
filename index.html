@@ -152,8 +152,37 @@
   .empty-state{ text-align:center; color: var(--bone-dim); margin-top: 40px; font-size: 15px; padding: 0 20px; }
 
   .progress-wrap{ margin: 8px 0 4px; }
-  .progress-track{ height: 10px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow:hidden; }
-  .progress-fill{ height:100%; background: linear-gradient(90deg, var(--pumpkin-dark), var(--pumpkin)); transition: width .4s ease; }
+
+  .pumpkin-trail{ display:flex; gap: 10px; justify-content:center; margin-bottom: 10px; }
+  .trail-pumpkin{
+    font-size: 24px; opacity: 0.28; filter: grayscale(1);
+    transition: opacity .35s ease, filter .35s ease;
+  }
+  .trail-pumpkin.lit{ opacity: 1; filter: grayscale(0) drop-shadow(0 0 8px rgba(255,140,20,0.85)); }
+  .trail-pumpkin.pop{ animation: pumpkinPop .55s ease; }
+  @keyframes pumpkinPop{
+    0%{ transform: scale(1) rotate(0deg); }
+    35%{ transform: scale(1.6) rotate(-10deg); }
+    65%{ transform: scale(0.9) rotate(6deg); }
+    100%{ transform: scale(1) rotate(0deg); }
+  }
+
+  .progress-track{ height: 14px; border-radius: 8px; background: rgba(255,255,255,0.08); overflow:visible; position:relative; }
+  .progress-fill{
+    height:100%; border-radius: 8px; overflow:visible; position:relative;
+    background: linear-gradient(90deg, var(--pumpkin-dark), var(--pumpkin));
+    transition: width .5s ease;
+  }
+  .progress-rider{
+    position:absolute; top:50%; right:-6px; transform: translate(50%, -50%);
+    font-size: 20px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+  }
+  .progress-rider.bump{ animation: riderBump .5s ease; }
+  @keyframes riderBump{
+    0%{ transform: translate(50%, -50%) scale(1) rotate(0deg); }
+    40%{ transform: translate(50%, -65%) scale(1.3) rotate(-12deg); }
+    100%{ transform: translate(50%, -50%) scale(1) rotate(0deg); }
+  }
   .progress-label{ font-size: 12px; color: var(--bone-dim); margin-top: 6px; text-align:center; }
 
   /* ---------- TASK DETAIL (kid view) ---------- */
@@ -290,7 +319,12 @@
       <button class="customize-btn" data-action="open-admin" aria-label="Parent settings">⚙️ Customize</button>
     </div>
     <div class="progress-wrap">
-      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="pumpkin-trail" id="pumpkinTrail"></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%">
+          <span class="progress-rider" id="progressRider">👻</span>
+        </div>
+      </div>
       <div class="progress-label" id="progressLabel">0 of 0 done</div>
     </div>
     <div class="list" id="taskListEl"></div>
@@ -428,34 +462,39 @@
   });
 
   var currentScreenId = "splash";
-  var transitioning = false;
+  var transitionToken = 0;
 
   function show(id, direction){
     if(id === currentScreenId) return;
-    var fromEl = screens[currentScreenId];
+    var fromId = currentScreenId;
+    var fromEl = screens[fromId];
     var toEl = screens[id];
     if(!fromEl || !toEl) return;
 
     direction = direction || "forward";
 
-    if(transitioning){
-      fromEl.classList.remove("active");
-      fromEl.style.animation = "";
-    }
-    transitioning = true;
+    // clean up any screen left mid-transition by a superseded navigation
+    Object.keys(screens).forEach(function(k){
+      if(k !== fromId && k !== id){
+        screens[k].classList.remove("active");
+        screens[k].style.animation = "";
+      }
+    });
+
+    transitionToken++;
+    var myToken = transitionToken;
 
     toEl.classList.add("active");
     toEl.style.animation = (direction === "back" ? "slideInLeft" : "slideInRight") + " .32s ease forwards";
     fromEl.style.animation = (direction === "back" ? "slideOutRight" : "slideOutLeft") + " .32s ease forwards";
 
-    var prevId = currentScreenId;
     currentScreenId = id;
 
     setTimeout(function(){
-      screens[prevId].classList.remove("active");
-      screens[prevId].style.animation = "";
+      if(myToken !== transitionToken) return;
+      fromEl.classList.remove("active");
+      fromEl.style.animation = "";
       toEl.style.animation = "";
-      transitioning = false;
     }, 320);
   }
 
@@ -472,6 +511,34 @@
   }
 
   // ---------- TASK LIST ----------
+  var lastDoneCount = null;
+
+  function renderPumpkinTrail(done, total){
+    var trail = document.getElementById("pumpkinTrail");
+    if(!trail) return;
+    var pumpkins = trail.querySelectorAll(".trail-pumpkin");
+    if(pumpkins.length !== total){
+      trail.innerHTML = "";
+      for(var i = 0; i < total; i++){
+        var span = document.createElement("span");
+        span.className = "trail-pumpkin";
+        span.textContent = "🎃";
+        trail.appendChild(span);
+      }
+      pumpkins = trail.querySelectorAll(".trail-pumpkin");
+    }
+    pumpkins.forEach(function(p, i){
+      var shouldBeLit = i < done;
+      var wasLit = p.classList.contains("lit");
+      p.classList.toggle("lit", shouldBeLit);
+      if(shouldBeLit && !wasLit){
+        p.classList.remove("pop");
+        void p.offsetWidth;
+        p.classList.add("pop");
+      }
+    });
+  }
+
   function renderTaskList(){
     var list = document.getElementById("taskListEl");
     list.innerHTML = "";
@@ -480,6 +547,18 @@
 
     document.getElementById("progressFill").style.width = total ? (done/total*100) + "%" : "0%";
     document.getElementById("progressLabel").textContent = done + " of " + total + " done";
+    renderPumpkinTrail(done, total);
+
+    var rider = document.getElementById("progressRider");
+    if(rider){
+      rider.textContent = (total > 0 && done === total) ? "🎉" : "👻";
+      if(lastDoneCount !== null && done > lastDoneCount){
+        rider.classList.remove("bump");
+        void rider.offsetWidth;
+        rider.classList.add("bump");
+      }
+    }
+    lastDoneCount = done;
 
     if(total === 0){
       list.innerHTML = '<div class="empty-state">No chores yet. Tap ⚙️ Customize above to add some.</div>';
