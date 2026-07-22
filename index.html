@@ -231,6 +231,16 @@
     100%{ transform: translateX(-120vw) translateY(10px) scaleX(-1); }
   }
 
+  .mute-btn{
+    position: fixed; bottom: calc(var(--safe-bottom) + 14px); right: 14px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(21,15,30,0.55); border: 1px solid rgba(255,255,255,0.18);
+    color: var(--bone); font-size: 20px; opacity: 0.85;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index: 400;
+  }
+  .mute-btn:active{ transform: scale(0.94); }
+
   .lightning-layer{ position:fixed; inset:0; pointer-events:none; z-index: 900; background: rgba(255,255,255,0); }
   .lightning-layer.strike{ animation: lightningFlash 0.8s ease-out; }
   @keyframes lightningFlash{
@@ -284,6 +294,7 @@
 <div id="confettiLayer" class="confetti-layer"></div>
 <div id="batLayer" class="bat-layer"></div>
 <div id="lightningLayer" class="lightning-layer"></div>
+<button id="muteToggle" class="mute-btn" data-action="toggle-mute" aria-label="Mute sounds">🔊</button>
 <div id="app">
 
   <!-- SPLASH -->
@@ -642,7 +653,24 @@
     playSound("BadWolf.mp3");
   }
 
+  var MUTE_KEY = "trickOrChores:muted";
+  var soundMuted = false;
+  try{ soundMuted = localStorage.getItem(MUTE_KEY) === "1"; }catch(e){}
+
+  function updateMuteButton(){
+    var btn = document.getElementById("muteToggle");
+    if(!btn) return;
+    btn.textContent = soundMuted ? "🔇" : "🔊";
+  }
+
+  function toggleMute(){
+    soundMuted = !soundMuted;
+    try{ localStorage.setItem(MUTE_KEY, soundMuted ? "1" : "0"); }catch(e){}
+    updateMuteButton();
+  }
+
   function playSound(src){
+    if(soundMuted) return;
     try{
       var audio = new Audio(src);
       audio.play().catch(function(){});
@@ -814,6 +842,7 @@
       case "reward-home": show("splash", "back"); break;
       case "tasklist-back": show("splash", "back"); break;
       case "admin-restart": restartRound(); break;
+      case "toggle-mute": toggleMute(); break;
     }
   });
 
@@ -874,6 +903,7 @@
 
   enableChoreDrag();
   renderTaskList();
+  updateMuteButton();
 })();
 </script>
 </body>
