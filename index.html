@@ -488,7 +488,9 @@
     direction = direction || "forward";
 
     if(id === "splash"){
-      playSound("creepybells.mp3");
+      playSplashLoop();
+    } else if(fromId === "splash"){
+      stopSplashLoop();
     }
 
     // clean up any screen left mid-transition by a superseded navigation
@@ -659,6 +661,9 @@
   var soundMuted = false;
   try{ soundMuted = localStorage.getItem(MUTE_KEY) === "1"; }catch(e){}
 
+  var splashLoop = new Audio("creepybells.mp3");
+  splashLoop.loop = true;
+
   function updateMuteButton(){
     var btn = document.getElementById("muteToggle");
     if(!btn) return;
@@ -669,6 +674,21 @@
     soundMuted = !soundMuted;
     try{ localStorage.setItem(MUTE_KEY, soundMuted ? "1" : "0"); }catch(e){}
     updateMuteButton();
+    if(currentScreenId === "splash"){
+      if(soundMuted){ stopSplashLoop(); } else { playSplashLoop(); }
+    }
+  }
+
+  function playSplashLoop(){
+    if(soundMuted) return;
+    try{
+      splashLoop.currentTime = 0;
+      splashLoop.play().catch(function(){});
+    }catch(e){}
+  }
+
+  function stopSplashLoop(){
+    try{ splashLoop.pause(); }catch(e){}
   }
 
   function playSound(src){
@@ -906,7 +926,7 @@
   enableChoreDrag();
   renderTaskList();
   updateMuteButton();
-  playSound("creepybells.mp3");
+  playSplashLoop();
 })();
 </script>
 </body>
