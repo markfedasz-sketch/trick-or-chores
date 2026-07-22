@@ -270,8 +270,9 @@
     </div>
 
     <div class="admin-section">
-      <span class="field-label">Tonight's reward</span>
-      <input class="input" id="adminReward" placeholder="e.g. Extra candy + a scary movie" />
+      <span class="field-label">Rewards</span>
+      <div id="adminRewardRows"></div>
+      <button class="add-row" data-action="admin-add-reward">+ Add a reward</button>
     </div>
 
     <button class="btn-ghost" data-action="admin-restart">Reset chores for a new round</button>
@@ -308,7 +309,7 @@
       { id: "t2", name: "Clean your room", done: false },
       { id: "t3", name: "Take out the trash", done: false }
     ],
-    reward: exampleRewards[0]
+    rewards: exampleRewards.slice()
   };
 
   function loadState(){
@@ -317,6 +318,10 @@
       if(!raw) return JSON.parse(JSON.stringify(defaultState));
       var parsed = JSON.parse(raw);
       if(!parsed.tasks) return JSON.parse(JSON.stringify(defaultState));
+      if(!parsed.rewards || !parsed.rewards.length){
+        parsed.rewards = parsed.reward ? [parsed.reward] : exampleRewards.slice();
+      }
+      delete parsed.reward;
       return parsed;
     }catch(e){
       return JSON.parse(JSON.stringify(defaultState));
@@ -429,7 +434,10 @@
 
   // ---------- REWARD ----------
   function goToReward(){
-    document.getElementById("rewardText").textContent = state.reward || pickExampleReward();
+    var reward = state.rewards && state.rewards.length
+      ? state.rewards[Math.floor(Math.random() * state.rewards.length)]
+      : pickExampleReward();
+    document.getElementById("rewardText").textContent = reward;
     document.getElementById("completedList").innerHTML = state.tasks.map(function(t){
       return '<div class="completed-item"><span class="check">✓</span>' + escapeHtml(t.name) + '</div>';
     }).join("");
@@ -483,7 +491,24 @@
       });
       rows.appendChild(row);
     });
-    document.getElementById("adminReward").value = state.reward || "";
+
+    var rewardRows = document.getElementById("adminRewardRows");
+    rewardRows.innerHTML = "";
+    state.rewards.forEach(function(r, idx){
+      var row = document.createElement("div");
+      row.className = "admin-task-row";
+      row.innerHTML =
+        '<input class="input" value="' + r.replace(/"/g,'&quot;') + '" placeholder="e.g. Extra candy + a scary movie" />' +
+        '<button class="row-del">✕</button>';
+      row.querySelector("input").addEventListener("input", function(e){
+        state.rewards[idx] = e.target.value;
+      });
+      row.querySelector(".row-del").addEventListener("click", function(){
+        state.rewards.splice(idx, 1);
+        renderAdmin();
+      });
+      rewardRows.appendChild(row);
+    });
   }
 
   function addAdminTask(){
@@ -492,9 +517,15 @@
     renderAdmin();
   }
 
+  function addAdminReward(){
+    state.rewards.push("");
+    renderAdmin();
+  }
+
   function saveAdmin(){
     state.tasks = state.tasks.filter(function(t){ return t.name.trim().length > 0; });
-    state.reward = document.getElementById("adminReward").value.trim() || pickExampleReward();
+    state.rewards = state.rewards.map(function(r){ return r.trim(); }).filter(function(r){ return r.length > 0; });
+    if(!state.rewards.length){ state.rewards = exampleRewards.slice(); }
     saveState();
     goToTaskListOrReward();
   }
@@ -511,6 +542,7 @@
       case "close-admin": show(state.tasks.length ? "tasklist" : "splash"); break;
       case "admin-cancel": show("splash"); break;
       case "admin-add-task": addAdminTask(); break;
+      case "admin-add-reward": addAdminReward(); break;
       case "admin-save": saveAdmin(); break;
       case "task-done": completeActiveTask(); break;
       case "task-back": activeTaskId = null; show("tasklist"); break;
