@@ -322,7 +322,7 @@
   var state = loadState();
   var activeTaskId = null;
   var pinBuffer = "";
-  var pinTarget = null; // "verify" | "admin-gate"
+  var pinTarget = null; // "reward-gate" | "admin-gate"
   var gone = 0;
 
   var screens = {};
@@ -378,7 +378,7 @@
     });
 
     if(total > 0 && done === total){
-      goToReward();
+      openRewardGate();
     }
   }
 
@@ -440,8 +440,8 @@
 
   function checkPin(){
     if(pinBuffer === state.pin){
-      if(pinTarget === "verify"){
-        completeActiveTask();
+      if(pinTarget === "reward-gate"){
+        goToReward();
       } else if(pinTarget === "admin-gate"){
         pinBuffer = "";
         renderAdmin();
@@ -454,13 +454,11 @@
     }
   }
 
-  function openVerify(){
-    var t = state.tasks.find(function(x){ return x.id === activeTaskId; });
-    if(!t) return;
-    pinTarget = "verify";
+  function openRewardGate(){
+    pinTarget = "reward-gate";
     pinBuffer = "";
-    document.getElementById("verifyTaskName").textContent = t.name;
-    document.getElementById("verifyHint").textContent = "Parent: enter the PIN to confirm \"" + t.name + "\" is done.";
+    document.getElementById("verifyTaskName").textContent = "All chores done!";
+    document.getElementById("verifyHint").textContent = "Parent: enter the PIN to reveal tonight's reward.";
     document.getElementById("pinError").textContent = "";
     buildKeypad();
     renderPinDots();
@@ -484,7 +482,10 @@
     saveState();
     activeTaskId = null;
     renderTaskList();
-    show("tasklist");
+    var allDone = state.tasks.length > 0 && state.tasks.every(function(x){ return x.done; });
+    if(!allDone){
+      show("tasklist");
+    }
   }
 
   // ---------- REWARD ----------
@@ -553,7 +554,7 @@
       case "admin-cancel": show("splash"); break;
       case "admin-add-task": addAdminTask(); break;
       case "admin-save": saveAdmin(); break;
-      case "task-done": openVerify(); break;
+      case "task-done": completeActiveTask(); break;
       case "task-back": activeTaskId = null; show("tasklist"); break;
       case "verify-cancel":
         pinTarget = null;
