@@ -745,6 +745,7 @@
         t.name = e.target.value;
       });
       row.querySelector(".row-del").addEventListener("click", function(){
+        playSound("Plok.mp3");
         state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; });
         renderAdmin();
       });
@@ -763,6 +764,7 @@
         state.rewards[idx] = e.target.value;
       });
       row.querySelector(".row-del").addEventListener("click", function(){
+        playSound("Plok.mp3");
         state.rewards.splice(idx, 1);
         renderAdmin();
       });
@@ -852,6 +854,9 @@
     var btn = e.target.closest("[data-action]");
     if(!btn) return;
     var action = btn.getAttribute("data-action");
+    if(action !== "splash-yes" && action !== "splash-no"){
+      playSound("Plok.mp3");
+    }
     switch(action){
       case "splash-yes": playSound("StartGamePing.mp3"); goToTaskListOrReward("forward"); break;
       case "splash-no": splashNo(); break;
