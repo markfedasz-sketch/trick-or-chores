@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<title>Trick or Chores</title>
+
+<!-- iPhone home-screen / standalone app behavior -->
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Trick or Chores" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="theme-color" content="#150F1E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #150F1E;
+    --bg-2: #221530;
+    --panel: #2E1A47;
+    --pumpkin: #FF7518;
+    --pumpkin-dark: #C2540C;
+    --slime: #7CFC6E;
+    --bone: #F3EAD8;
+    --bone-dim: #C9BFD6;
+    --blood: #C43A31;
+    --glow: #FFD08A;
+    --radius: 22px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--bone);
+    font-family: 'Nunito', system-ui, sans-serif;
+    overscroll-behavior: none;
+    user-select: none;
+  }
+
+  #app{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: calc(var(--safe-top) + 14px);
+    padding-bottom: calc(var(--safe-bottom) + 14px);
+    padding-left: 18px;
+    padding-right: 18px;
+    background:
+      radial-gradient(circle at 50% 0%, var(--bg-2) 0%, var(--bg) 55%),
+      repeating-radial-gradient(circle at 20% 30%, rgba(255,117,24,0.04) 0 2px, transparent 2px 40px);
+    overflow: hidden;
+  }
+
+  .screen{
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    animation: fadeIn .35s ease;
+  }
+  .screen.active{ display: flex; }
+
+  @keyframes fadeIn{ from{ opacity:0; transform: translateY(8px);} to{opacity:1; transform:none;} }
+
+  h1, h2, h3{ font-family: 'Creepster', cursive; letter-spacing: .5px; margin: 0; font-weight: normal; }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom: 10px;
+  }
+  .brand{ font-family:'Creepster', cursive; font-size: 20px; color: var(--pumpkin); }
+  .icon-btn{
+    width: 40px; height:40px; border-radius: 12px; border: none;
+    background: rgba(255,255,255,0.06); color: var(--bone);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 18px; cursor:pointer;
+  }
+  .icon-btn:active{ transform: scale(0.94); }
+
+  /* ---------- SPLASH ---------- */
+  #splash{ align-items:center; justify-content:center; text-align:center; gap: 22px; position: relative; }
+  .admin-corner{ position:absolute; top: calc(var(--safe-top) + 14px); right: 4px; }
+
+  .pumpkin-wrap{ width: 160px; height: 160px; position:relative; filter: drop-shadow(0 0 22px rgba(255,140,20,0.55)); animation: bob 3.2s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-10px);} }
+  #splashGif{ width: 100%; height: 100%; object-fit: contain; border-radius: 16px; }
+
+  svg#pumpkinFace .flicker{ animation: flick 2.4s infinite; transform-origin: center; }
+  @keyframes flick{ 0%,100%{opacity:1;} 48%{opacity:1;} 50%{opacity:.55;} 52%{opacity:1;} 82%{opacity:1;} 84%{opacity:.7;} 86%{opacity:1;} }
+
+  .splash-title{ font-size: 30px; line-height: 1.25; color: var(--bone); text-shadow: 0 0 18px rgba(255,117,24,0.35); }
+  .splash-sub{ color: var(--bone-dim); font-size: 15px; max-width: 280px; }
+
+  .yesno{ display:flex; gap: 16px; margin-top: 6px; width: 100%; max-width: 340px; }
+  .btn{
+    border: none; border-radius: 16px; padding: 18px 10px; font-weight: 800; font-size: 18px;
+    cursor:pointer; flex:1; color: var(--bg);
+  }
+  .btn:active{ transform: scale(0.96); }
+  .btn-yes{ background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); box-shadow: 0 8px 20px rgba(255,117,24,0.35); }
+  .btn-no{ background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14); }
+
+  .spooky-no{ color: var(--bone-dim); font-size: 14px; min-height: 20px; }
+
+  /* ---------- TASK LIST ---------- */
+  #tasklist .list{ flex:1; overflow-y: auto; display:flex; flex-direction:column; gap: 12px; padding-top: 6px; }
+  .task-card{
+    background: var(--panel); border-radius: var(--radius); padding: 16px 16px;
+    display:flex; align-items:center; gap: 14px; border: 1px solid rgba(255,255,255,0.06);
+  }
+  .task-check{
+    width: 30px; height:30px; border-radius: 50%; border: 2px solid var(--pumpkin);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size: 15px;
+  }
+  .task-card.done{ opacity: .55; }
+  .task-card.done .task-check{ background: var(--slime); border-color: var(--slime); color: var(--bg); }
+  .task-name{ flex:1; font-weight: 700; font-size: 17px; }
+  .task-go{ font-size: 13px; color: var(--pumpkin); font-weight: 800; }
+
+  .empty-state{ text-align:center; color: var(--bone-dim); margin-top: 40px; font-size: 15px; padding: 0 20px; }
+
+  .progress-wrap{ margin: 8px 0 4px; }
+  .progress-track{ height: 10px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow:hidden; }
+  .progress-fill{ height:100%; background: linear-gradient(90deg, var(--pumpkin-dark), var(--pumpkin)); transition: width .4s ease; }
+  .progress-label{ font-size: 12px; color: var(--bone-dim); margin-top: 6px; text-align:center; }
+
+  /* ---------- TASK DETAIL (kid view) ---------- */
+  #taskdetail{ align-items:center; justify-content:center; text-align:center; gap: 26px; }
+  .task-big-icon{ font-size: 64px; }
+  #taskdetail h2{ font-size: 30px; max-width: 300px; }
+  .task-hint{ color: var(--bone-dim); font-size: 14px; max-width: 260px; }
+  .btn-wide{ width: 100%; max-width: 320px; }
+  .btn-ghost{ background: transparent; border: 2px solid rgba(255,255,255,0.14); color: var(--bone-dim); font-weight:700; padding: 14px; border-radius: 14px; }
+
+  /* ---------- PARENT VERIFY ---------- */
+  #verify{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
+  .parent-badge{ font-size: 13px; color: var(--pumpkin); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+  .pin-dots{ display:flex; gap: 14px; margin: 6px 0; }
+  .pin-dot{ width: 16px; height:16px; border-radius:50%; border: 2px solid var(--pumpkin); background: transparent; }
+  .pin-dot.filled{ background: var(--pumpkin); }
+  .keypad{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 280px; }
+  .key{ background: rgba(255,255,255,0.06); border:none; border-radius: 14px; padding: 16px 0; font-size: 20px; font-weight:800; color: var(--bone); }
+  .key:active{ background: rgba(255,255,255,0.14); }
+  .pin-error{ color: var(--blood); font-size: 13px; min-height: 18px; font-weight: 700; }
+
+  /* ---------- REWARD ---------- */
+  #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
+  .reward-card{ background: var(--panel); border-radius: var(--radius); padding: 26px 22px; max-width: 320px; border: 1px solid rgba(124,252,110,0.25); box-shadow: 0 0 30px rgba(124,252,110,0.12); }
+  .reward-label{ font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slime); font-weight: 800; }
+  .reward-text{ font-size: 22px; font-weight: 800; margin-top: 8px; color: var(--bone); }
+
+  /* ---------- ADMIN ---------- */
+  #admin{ gap: 14px; overflow-y:auto; }
+  .field-label{ font-size: 13px; color: var(--bone-dim); font-weight: 700; margin-bottom: 6px; display:block; }
+  .input{
+    width:100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--bone); border-radius: 12px; padding: 12px 14px; font-size: 16px; font-family: inherit;
+  }
+  .admin-section{ background: var(--panel); border-radius: var(--radius); padding: 16px; }
+  .admin-task-row{ display:flex; gap:8px; align-items:center; margin-bottom: 10px; }
+  .admin-task-row .input{ flex:1; }
+  .row-del{ background: rgba(196,58,49,0.18); color: var(--blood); border:none; width:38px; height:38px; border-radius:10px; font-size: 16px; flex-shrink:0; }
+  .add-row{ background: rgba(255,117,24,0.15); color: var(--pumpkin); border: 1px dashed var(--pumpkin); border-radius: 12px; padding: 12px; font-weight: 800; width:100%; }
+  .save-bar{ display:flex; gap: 10px; margin-top: 4px; }
+  .btn-save{ background: var(--pumpkin); color: var(--bg); flex:1; border-radius:14px; padding:14px; font-weight:800; border:none; }
+  .btn-cancel{ background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14); border-radius:14px; padding:14px; font-weight:700; }
+
+  ::-webkit-scrollbar{ display:none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SPLASH -->
+  <section id="splash" class="screen active">
+    <button class="icon-btn admin-corner" data-action="open-admin-gate" aria-label="Parent settings">⚙️</button>
+    <div class="pumpkin-wrap">
+      <!--
+        Drop your own animated GIF in this same folder and point the src at it —
+        e.g. save it as "splash.gif" right next to index.html and use src="splash.gif".
+        If the file is missing, the SVG jack-o-lantern below shows automatically instead.
+      -->
+      <img id="splashGif" src="splash.gif" alt="" onerror="this.style.display='none'; document.getElementById('pumpkinFace').style.display='block';" />
+      <svg id="pumpkinFace" viewBox="0 0 200 200" width="100%" height="100%" style="display:none;">
+        <path d="M100 20 C40 20 25 70 25 105 C25 155 60 180 100 180 C140 180 175 155 175 105 C175 70 160 20 100 20 Z" fill="#FF7518"/>
+        <path d="M100 20 C40 20 25 70 25 105 C25 155 60 180 100 180" fill="none" stroke="#C2540C" stroke-width="4" opacity="0.5"/>
+        <rect x="90" y="4" width="20" height="26" rx="8" fill="#4A7A3A"/>
+        <g class="flicker" fill="#FFD08A">
+          <polygon points="65,95 82,95 73,72"/>
+          <polygon points="118,95 135,95 126,72"/>
+          <polygon points="70,118 130,118 122,140 78,140 78,128 122,128 118,140" />
+        </g>
+      </svg>
+    </div>
+    <h1 class="splash-title">Do you want<br/>to play a game?</h1>
+    <p class="splash-sub">Finish your spooky chores tonight and something sweet is waiting for you...</p>
+    <div class="yesno">
+      <button class="btn btn-no" data-action="splash-no">No thanks</button>
+      <button class="btn btn-yes" data-action="splash-yes">Yes!</button>
+    </div>
+    <div class="spooky-no" id="spookyNo"></div>
+  </section>
+
+  <!-- TASK LIST -->
+  <section id="tasklist" class="screen">
+    <div class="topbar">
+      <span class="brand">🎃 Trick or Chores</span>
+      <button class="icon-btn" data-action="open-admin-gate" aria-label="Parent settings">⚙️</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">0 of 0 done</div>
+    </div>
+    <div class="list" id="taskListEl"></div>
+  </section>
+
+  <!-- TASK DETAIL (kid) -->
+  <section id="taskdetail" class="screen">
+    <div class="task-big-icon">🧹</div>
+    <h2 id="taskDetailName">Task</h2>
+    <p class="task-hint">Do the chore, then hand the phone back to a parent to check it off.</p>
+    <button class="btn btn-yes btn-wide" data-action="task-done">I did it!</button>
+    <button class="btn-ghost btn-wide" data-action="task-back">Back to list</button>
+  </section>
+
+  <!-- PARENT VERIFY (PIN) -->
+  <section id="verify" class="screen">
+    <div class="parent-badge">Parent check</div>
+    <h2 id="verifyTaskName">Verify chore</h2>
+    <p class="task-hint" id="verifyHint">Enter the parent PIN to mark this complete.</p>
+    <div class="pin-dots" id="pinDots"></div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="keypad" id="keypad"></div>
+    <button class="btn-ghost btn-wide" data-action="verify-cancel">Cancel</button>
+  </section>
+
+  <!-- REWARD -->
+  <section id="reward" class="screen">
+    <div style="font-size:56px;">🏆</div>
+    <h2>All done!</h2>
+    <div class="reward-card">
+      <div class="reward-label">Tonight's reward</div>
+      <div class="reward-text" id="rewardText">—</div>
+    </div>
+    <button class="btn btn-yes btn-wide" data-action="reward-restart">Start a new round</button>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" class="screen">
+    <div class="topbar">
+      <span class="brand">Customize</span>
+      <button class="icon-btn" data-action="close-admin">✕</button>
+    </div>
+
+    <div class="admin-section">
+      <span class="field-label">Chores</span>
+      <div id="adminTaskRows"></div>
+      <button class="add-row" data-action="admin-add-task">+ Add a chore</button>
+    </div>
+
+    <div class="admin-section">
+      <span class="field-label">Tonight's reward</span>
+      <input class="input" id="adminReward" placeholder="e.g. Extra candy + a scary movie" />
+    </div>
+
+    <div class="admin-section">
+      <span class="field-label">Parent PIN (4 digits)</span>
+      <input class="input" id="adminPin" inputmode="numeric" maxlength="4" placeholder="1234" />
+    </div>
+
+    <div class="save-bar">
+      <button class="btn-cancel" data-action="close-admin">Cancel</button>
+      <button class="btn-save" data-action="admin-save">Save changes</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "trickOrChores:v1";
+
+  var defaultState = {
+    tasks: [
+      { id: "t1", name: "Wash the dishes", done: false },
+      { id: "t2", name: "Clean your room", done: false },
+      { id: "t3", name: "Take out the trash", done: false }
+    ],
+    reward: "Pick tonight's Halloween movie 🎬",
+    pin: "1234"
+  };
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return JSON.parse(JSON.stringify(defaultState));
+      var parsed = JSON.parse(raw);
+      if(!parsed.tasks || !parsed.pin) return JSON.parse(JSON.stringify(defaultState));
+      return parsed;
+    }catch(e){
+      return JSON.parse(JSON.stringify(defaultState));
+    }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  var state = loadState();
+  var activeTaskId = null;
+  var pinBuffer = "";
+  var pinTarget = null; // "verify" | "admin-gate"
+  var gone = 0;
+
+  var screens = {};
+  ["splash","tasklist","taskdetail","verify","reward","admin"].forEach(function(id){
+    screens[id] = document.getElementById(id);
+  });
+
+  function show(id){
+    Object.keys(screens).forEach(function(k){
+      screens[k].classList.toggle("active", k === id);
+    });
+  }
+
+  // ---------- SPLASH ----------
+  var noMessages = [
+    "The pumpkins insist.",
+    "There is no escape from chores.",
+    "Try again, mortal.",
+    "The candy is watching."
+  ];
+  function splashNo(){
+    document.getElementById("spookyNo").textContent = noMessages[gone % noMessages.length];
+    gone++;
+  }
+
+  // ---------- TASK LIST ----------
+  function renderTaskList(){
+    var list = document.getElementById("taskListEl");
+    list.innerHTML = "";
+    var done = state.tasks.filter(function(t){ return t.done; }).length;
+    var total = state.tasks.length;
+
+    document.getElementById("progressFill").style.width = total ? (done/total*100) + "%" : "0%";
+    document.getElementById("progressLabel").textContent = done + " of " + total + " done";
+
+    if(total === 0){
+      list.innerHTML = '<div class="empty-state">No chores yet. A parent can add some from the ⚙️ menu.</div>';
+      return;
+    }
+
+    state.tasks.forEach(function(t){
+      var card = document.createElement("div");
+      card.className = "task-card" + (t.done ? " done" : "");
+      card.setAttribute("data-task-id", t.id);
+      card.innerHTML =
+        '<div class="task-check">' + (t.done ? "✓" : "") + '</div>' +
+        '<div class="task-name">' + escapeHtml(t.name) + '</div>' +
+        (t.done ? '' : '<div class="task-go">Start →</div>');
+      if(!t.done){
+        card.addEventListener("click", function(){ openTask(t.id); });
+      }
+      list.appendChild(card);
+    });
+
+    if(total > 0 && done === total){
+      goToReward();
+    }
+  }
+
+  function escapeHtml(s){
+    var d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // ---------- TASK DETAIL ----------
+  function openTask(id){
+    activeTaskId = id;
+    var t = state.tasks.find(function(x){ return x.id === id; });
+    if(!t) return;
+    document.getElementById("taskDetailName").textContent = t.name;
+    show("taskdetail");
+  }
+
+  // ---------- VERIFY (PIN) ----------
+  function buildKeypad(){
+    var pad = document.getElementById("keypad");
+    pad.innerHTML = "";
+    var keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
+    keys.forEach(function(k){
+      var b = document.createElement("button");
+      b.className = "key";
+      b.textContent = k;
+      if(k === ""){ b.style.visibility = "hidden"; }
+      b.addEventListener("click", function(){ handleKey(k); });
+      pad.appendChild(b);
+    });
+  }
+
+  function renderPinDots(){
+    var wrap = document.getElementById("pinDots");
+    wrap.innerHTML = "";
+    for(var i=0;i<4;i++){
+      var d = document.createElement("div");
+      d.className = "pin-dot" + (i < pinBuffer.length ? " filled" : "");
+      wrap.appendChild(d);
+    }
+  }
+
+  function handleKey(k){
+    document.getElementById("pinError").textContent = "";
+    if(k === "⌫"){
+      pinBuffer = pinBuffer.slice(0, -1);
+      renderPinDots();
+      return;
+    }
+    if(k === "") return;
+    if(pinBuffer.length >= 4) return;
+    pinBuffer += k;
+    renderPinDots();
+    if(pinBuffer.length === 4){
+      setTimeout(checkPin, 120);
+    }
+  }
+
+  function checkPin(){
+    if(pinBuffer === state.pin){
+      if(pinTarget === "verify"){
+        completeActiveTask();
+      } else if(pinTarget === "admin-gate"){
+        pinBuffer = "";
+        renderAdmin();
+        show("admin");
+      }
+    } else {
+      document.getElementById("pinError").textContent = "Wrong PIN, try again";
+      pinBuffer = "";
+      renderPinDots();
+    }
+  }
+
+  function openVerify(){
+    var t = state.tasks.find(function(x){ return x.id === activeTaskId; });
+    if(!t) return;
+    pinTarget = "verify";
+    pinBuffer = "";
+    document.getElementById("verifyTaskName").textContent = t.name;
+    document.getElementById("verifyHint").textContent = "Parent: enter the PIN to confirm \"" + t.name + "\" is done.";
+    document.getElementById("pinError").textContent = "";
+    buildKeypad();
+    renderPinDots();
+    show("verify");
+  }
+
+  function openAdminGate(){
+    pinTarget = "admin-gate";
+    pinBuffer = "";
+    document.getElementById("verifyTaskName").textContent = "Parent settings";
+    document.getElementById("verifyHint").textContent = "Enter the parent PIN to customize chores and rewards.";
+    document.getElementById("pinError").textContent = "";
+    buildKeypad();
+    renderPinDots();
+    show("verify");
+  }
+
+  function completeActiveTask(){
+    var t = state.tasks.find(function(x){ return x.id === activeTaskId; });
+    if(t) t.done = true;
+    saveState();
+    activeTaskId = null;
+    renderTaskList();
+    show("tasklist");
+  }
+
+  // ---------- REWARD ----------
+  function goToReward(){
+    document.getElementById("rewardText").textContent = state.reward || "Surprise!";
+    show("reward");
+  }
+
+  function restartRound(){
+    state.tasks.forEach(function(t){ t.done = false; });
+    saveState();
+    renderTaskList();
+    show("splash");
+  }
+
+  // ---------- ADMIN ----------
+  function renderAdmin(){
+    var rows = document.getElementById("adminTaskRows");
+    rows.innerHTML = "";
+    state.tasks.forEach(function(t){
+      var row = document.createElement("div");
+      row.className = "admin-task-row";
+      row.setAttribute("data-id", t.id);
+      row.innerHTML =
+        '<input class="input" value="' + t.name.replace(/"/g,'&quot;') + '" />' +
+        '<button class="row-del">✕</button>';
+      row.querySelector("input").addEventListener("input", function(e){
+        t.name = e.target.value;
+      });
+      row.querySelector(".row-del").addEventListener("click", function(){
+        state.tasks = state.tasks.filter(function(x){ return x.id !== t.id; });
+        renderAdmin();
+      });
+      rows.appendChild(row);
+    });
+    document.getElementById("adminReward").value = state.reward || "";
+    document.getElementById("adminPin").value = state.pin || "";
+  }
+
+  function addAdminTask(){
+    var id = "t" + Date.now();
+    state.tasks.push({ id: id, name: "", done: false });
+    renderAdmin();
+  }
+
+  function saveAdmin(){
+    state.tasks = state.tasks.filter(function(t){ return t.name.trim().length > 0; });
+    state.reward = document.getElementById("adminReward").value.trim() || "Surprise!";
+    var pin = document.getElementById("adminPin").value.trim();
+    state.pin = /^\d{4}$/.test(pin) ? pin : state.pin;
+    saveState();
+    renderTaskList();
+    show("tasklist");
+  }
+
+  // ---------- EVENTS ----------
+  document.body.addEventListener("click", function(e){
+    var btn = e.target.closest("[data-action]");
+    if(!btn) return;
+    var action = btn.getAttribute("data-action");
+    switch(action){
+      case "splash-yes": renderTaskList(); show("tasklist"); break;
+      case "splash-no": splashNo(); break;
+      case "open-admin-gate": openAdminGate(); break;
+      case "close-admin": show(state.tasks.length ? "tasklist" : "splash"); break;
+      case "admin-add-task": addAdminTask(); break;
+      case "admin-save": saveAdmin(); break;
+      case "task-done": openVerify(); break;
+      case "task-back": activeTaskId = null; show("tasklist"); break;
+      case "verify-cancel":
+        pinTarget = null;
+        show(activeTaskId ? "taskdetail" : "tasklist");
+        break;
+      case "reward-restart": restartRound(); break;
+    }
+  });
+
+  // register service worker for installability / offline
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+
+  renderTaskList();
+})();
+</script>
+</body>
+</html>
