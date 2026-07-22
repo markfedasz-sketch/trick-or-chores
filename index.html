@@ -155,6 +155,11 @@
   .reward-card{ background: var(--panel); border-radius: var(--radius); padding: 26px 22px; max-width: 320px; border: 1px solid rgba(124,252,110,0.25); box-shadow: 0 0 30px rgba(124,252,110,0.12); }
   .reward-label{ font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slime); font-weight: 800; }
   .reward-text{ font-size: 22px; font-weight: 800; margin-top: 8px; color: var(--bone); }
+  .reward-hint{ font-size: 17px; }
+
+  .completed-list{ display:flex; flex-direction:column; gap: 8px; width:100%; max-width: 320px; }
+  .completed-item{ display:flex; align-items:center; gap: 10px; font-size: 15px; color: var(--bone-dim); text-align:left; }
+  .completed-item .check{ color: var(--slime); font-weight: 800; flex-shrink:0; }
 
   .confetti-layer{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index: 999; }
   .confetti-piece{ position:absolute; top:-14px; border-radius: 2px; animation: confetti-fall linear forwards; }
@@ -242,11 +247,13 @@
   <section id="reward" class="screen">
     <div style="font-size:56px;">🏆</div>
     <h2>All done!</h2>
+    <div class="completed-list" id="completedList"></div>
     <div class="reward-card">
       <div class="reward-label">Tonight's reward</div>
       <div class="reward-text" id="rewardText">—</div>
     </div>
-    <p class="task-hint">Show this screen to a parent to collect your reward!</p>
+    <p class="task-hint reward-hint">Show this screen to a parent to collect your reward!</p>
+    <button class="btn-ghost btn-wide" data-action="reward-home">Back to Home</button>
   </section>
 
   <!-- ADMIN -->
@@ -423,6 +430,9 @@
   // ---------- REWARD ----------
   function goToReward(){
     document.getElementById("rewardText").textContent = state.reward || pickExampleReward();
+    document.getElementById("completedList").innerHTML = state.tasks.map(function(t){
+      return '<div class="completed-item"><span class="check">✓</span>' + escapeHtml(t.name) + '</div>';
+    }).join("");
     show("reward");
     spawnConfetti();
   }
@@ -504,6 +514,7 @@
       case "admin-save": saveAdmin(); break;
       case "task-done": completeActiveTask(); break;
       case "task-back": activeTaskId = null; show("tasklist"); break;
+      case "reward-home": show("splash"); break;
       case "admin-restart": restartRound(); break;
     }
   });
