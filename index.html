@@ -143,17 +143,6 @@
   .btn-half{ max-width: 160px; }
   .btn-ghost{ background: transparent; border: 2px solid rgba(255,255,255,0.14); color: var(--bone-dim); font-weight:700; padding: 14px; border-radius: 14px; }
 
-  /* ---------- PARENT VERIFY ---------- */
-  #verify{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
-  .parent-badge{ font-size: 13px; color: var(--pumpkin); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-  .pin-dots{ display:flex; gap: 14px; margin: 6px 0; }
-  .pin-dot{ width: 16px; height:16px; border-radius:50%; border: 2px solid var(--pumpkin); background: transparent; }
-  .pin-dot.filled{ background: var(--pumpkin); }
-  .keypad{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 280px; }
-  .key{ background: rgba(255,255,255,0.06); border:none; border-radius: 14px; padding: 16px 0; font-size: 20px; font-weight:800; color: var(--bone); }
-  .key:active{ background: rgba(255,255,255,0.14); }
-  .pin-error{ color: var(--blood); font-size: 13px; min-height: 18px; font-weight: 700; }
-
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
   .reward-card{ background: var(--panel); border-radius: var(--radius); padding: 26px 22px; max-width: 320px; border: 1px solid rgba(124,252,110,0.25); box-shadow: 0 0 30px rgba(124,252,110,0.12); }
@@ -192,7 +181,7 @@
 
   <!-- SPLASH -->
   <section id="splash" class="screen active">
-    <button class="icon-btn admin-corner" data-action="open-admin-gate" aria-label="Parent settings">⚙️</button>
+    <button class="icon-btn admin-corner" data-action="open-admin" aria-label="Parent settings">⚙️</button>
     <div class="pumpkin-wrap">
       <!--
         Drop your own animated GIF in this same folder and point the src at it —
@@ -224,7 +213,7 @@
   <section id="tasklist" class="screen">
     <div class="topbar">
       <span class="brand">🎃 Trick or Chores</span>
-      <button class="icon-btn" data-action="open-admin-gate" aria-label="Parent settings">⚙️</button>
+      <button class="icon-btn" data-action="open-admin" aria-label="Parent settings">⚙️</button>
     </div>
     <div class="progress-wrap">
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -240,17 +229,6 @@
     <p class="task-hint" id="taskDetailHint">Do the chore, then come back and check it off.</p>
     <button class="btn btn-yes btn-wide btn-half" data-action="task-done">I did it!</button>
     <button class="btn-ghost btn-wide" data-action="task-back">Back to list</button>
-  </section>
-
-  <!-- PARENT VERIFY (PIN) -->
-  <section id="verify" class="screen">
-    <div class="parent-badge">Parent check</div>
-    <h2 id="verifyTaskName">Verify chore</h2>
-    <p class="task-hint" id="verifyHint">Enter the parent PIN to mark this complete.</p>
-    <div class="pin-dots" id="pinDots"></div>
-    <div class="pin-error" id="pinError"></div>
-    <div class="keypad" id="keypad"></div>
-    <button class="btn-ghost btn-wide" data-action="verify-cancel">Cancel</button>
   </section>
 
   <!-- REWARD -->
@@ -280,11 +258,6 @@
     <div class="admin-section">
       <span class="field-label">Tonight's reward</span>
       <input class="input" id="adminReward" placeholder="e.g. Extra candy + a scary movie" />
-    </div>
-
-    <div class="admin-section">
-      <span class="field-label">Parent PIN (4 digits)</span>
-      <input class="input" id="adminPin" inputmode="numeric" maxlength="4" placeholder="1234" />
     </div>
 
     <div class="save-bar">
@@ -319,8 +292,7 @@
       { id: "t2", name: "Clean your room", done: false },
       { id: "t3", name: "Take out the trash", done: false }
     ],
-    reward: exampleRewards[0],
-    pin: "1234"
+    reward: exampleRewards[0]
   };
 
   function loadState(){
@@ -328,7 +300,7 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return JSON.parse(JSON.stringify(defaultState));
       var parsed = JSON.parse(raw);
-      if(!parsed.tasks || !parsed.pin) return JSON.parse(JSON.stringify(defaultState));
+      if(!parsed.tasks) return JSON.parse(JSON.stringify(defaultState));
       return parsed;
     }catch(e){
       return JSON.parse(JSON.stringify(defaultState));
@@ -341,12 +313,10 @@
 
   var state = loadState();
   var activeTaskId = null;
-  var pinBuffer = "";
-  var pinTarget = null; // "reward-gate" | "admin-gate"
   var gone = 0;
 
   var screens = {};
-  ["splash","tasklist","taskdetail","verify","reward","admin"].forEach(function(id){
+  ["splash","tasklist","taskdetail","reward","admin"].forEach(function(id){
     screens[id] = document.getElementById(id);
   });
 
@@ -403,7 +373,7 @@
     var done = state.tasks.filter(function(t){ return t.done; }).length;
     var total = state.tasks.length;
     if(total > 0 && done === total){
-      openRewardGate();
+      goToReward();
     } else {
       show("tasklist");
     }
@@ -428,83 +398,9 @@
     show("taskdetail");
   }
 
-  // ---------- VERIFY (PIN) ----------
-  function buildKeypad(){
-    var pad = document.getElementById("keypad");
-    pad.innerHTML = "";
-    var keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
-    keys.forEach(function(k){
-      var b = document.createElement("button");
-      b.className = "key";
-      b.textContent = k;
-      if(k === ""){ b.style.visibility = "hidden"; }
-      b.addEventListener("click", function(){ handleKey(k); });
-      pad.appendChild(b);
-    });
-  }
-
-  function renderPinDots(){
-    var wrap = document.getElementById("pinDots");
-    wrap.innerHTML = "";
-    for(var i=0;i<4;i++){
-      var d = document.createElement("div");
-      d.className = "pin-dot" + (i < pinBuffer.length ? " filled" : "");
-      wrap.appendChild(d);
-    }
-  }
-
-  function handleKey(k){
-    document.getElementById("pinError").textContent = "";
-    if(k === "⌫"){
-      pinBuffer = pinBuffer.slice(0, -1);
-      renderPinDots();
-      return;
-    }
-    if(k === "") return;
-    if(pinBuffer.length >= 4) return;
-    pinBuffer += k;
-    renderPinDots();
-    if(pinBuffer.length === 4){
-      setTimeout(checkPin, 120);
-    }
-  }
-
-  function checkPin(){
-    if(pinBuffer === state.pin){
-      if(pinTarget === "reward-gate"){
-        goToReward();
-      } else if(pinTarget === "admin-gate"){
-        pinBuffer = "";
-        renderAdmin();
-        show("admin");
-      }
-    } else {
-      document.getElementById("pinError").textContent = "Wrong PIN, try again";
-      pinBuffer = "";
-      renderPinDots();
-    }
-  }
-
-  function openRewardGate(){
-    pinTarget = "reward-gate";
-    pinBuffer = "";
-    document.getElementById("verifyTaskName").textContent = "All chores done!";
-    document.getElementById("verifyHint").textContent = "Parent: enter the PIN to reveal tonight's reward.";
-    document.getElementById("pinError").textContent = "";
-    buildKeypad();
-    renderPinDots();
-    show("verify");
-  }
-
-  function openAdminGate(){
-    pinTarget = "admin-gate";
-    pinBuffer = "";
-    document.getElementById("verifyTaskName").textContent = "Parent settings";
-    document.getElementById("verifyHint").textContent = "Enter the parent PIN to customize chores and rewards.";
-    document.getElementById("pinError").textContent = "";
-    buildKeypad();
-    renderPinDots();
-    show("verify");
+  function openAdmin(){
+    renderAdmin();
+    show("admin");
   }
 
   function completeActiveTask(){
@@ -569,7 +465,6 @@
       rows.appendChild(row);
     });
     document.getElementById("adminReward").value = state.reward || "";
-    document.getElementById("adminPin").value = state.pin || "";
   }
 
   function addAdminTask(){
@@ -581,8 +476,6 @@
   function saveAdmin(){
     state.tasks = state.tasks.filter(function(t){ return t.name.trim().length > 0; });
     state.reward = document.getElementById("adminReward").value.trim() || pickExampleReward();
-    var pin = document.getElementById("adminPin").value.trim();
-    state.pin = /^\d{4}$/.test(pin) ? pin : state.pin;
     saveState();
     goToTaskListOrReward();
   }
@@ -595,17 +488,13 @@
     switch(action){
       case "splash-yes": goToTaskListOrReward(); break;
       case "splash-no": splashNo(); break;
-      case "open-admin-gate": openAdminGate(); break;
+      case "open-admin": openAdmin(); break;
       case "close-admin": show(state.tasks.length ? "tasklist" : "splash"); break;
       case "admin-cancel": show("splash"); break;
       case "admin-add-task": addAdminTask(); break;
       case "admin-save": saveAdmin(); break;
       case "task-done": completeActiveTask(); break;
       case "task-back": activeTaskId = null; show("tasklist"); break;
-      case "verify-cancel":
-        pinTarget = null;
-        show(activeTaskId ? "taskdetail" : "tasklist");
-        break;
       case "reward-restart": restartRound(); break;
     }
   });
