@@ -179,9 +179,6 @@
   .admin-task-row{ display:flex; gap:8px; align-items:center; margin-bottom: 10px; }
   .admin-task-row .input{ flex:1; }
   .row-del{ background: rgba(196,58,49,0.18); color: var(--blood); border:none; width:38px; height:38px; border-radius:10px; font-size: 16px; flex-shrink:0; }
-  .preset-row{ display:flex; gap:8px; align-items:center; margin-bottom: 10px; }
-  .preset-name{ flex:1; font-weight: 700; font-size: 15px; color: var(--bone); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; }
-  .preset-load{ background: rgba(124,252,110,0.15); color: var(--slime); border: 1px solid var(--slime); border-radius: 10px; padding: 0 14px; height: 38px; font-weight: 800; font-size: 13px; flex-shrink:0; }
   .add-row{ background: rgba(255,117,24,0.15); color: var(--pumpkin); border: 1px dashed var(--pumpkin); border-radius: 12px; padding: 12px; font-weight: 800; width:100%; }
   .save-bar{ display:flex; gap: 10px; margin-top: 4px; }
   .btn-save{ background: var(--pumpkin); color: var(--bg); flex:1; border-radius:14px; padding:14px; font-weight:800; border:none; }
@@ -278,14 +275,7 @@
       <button class="add-row" data-action="admin-add-reward">+ Add a reward</button>
     </div>
 
-    <div class="admin-section">
-      <span class="field-label">Saved chore lists</span>
-      <div id="presetRows"></div>
-      <div class="admin-task-row">
-        <input class="input" id="presetNameInput" placeholder="Child's name" />
-      </div>
-      <button class="add-row" data-action="admin-save-preset">💾 Save current chores as a list</button>
-    </div>
+    <button class="btn-ghost" data-action="admin-restart">Reset chores for a new round</button>
 
     <div class="save-bar">
       <button class="btn-cancel" data-action="admin-cancel">Cancel</button>
@@ -319,8 +309,7 @@
       { id: "t2", name: "Clean your room", done: false },
       { id: "t3", name: "Take out the trash", done: false }
     ],
-    rewards: exampleRewards.slice(),
-    presets: []
+    rewards: exampleRewards.slice()
   };
 
   function loadState(){
@@ -331,9 +320,6 @@
       if(!parsed.tasks) return JSON.parse(JSON.stringify(defaultState));
       if(!parsed.rewards || !parsed.rewards.length){
         parsed.rewards = parsed.reward ? [parsed.reward] : exampleRewards.slice();
-      }
-      if(!parsed.presets){
-        parsed.presets = [];
       }
       delete parsed.reward;
       return parsed;
@@ -478,6 +464,13 @@
     setTimeout(function(){ layer.innerHTML = ""; }, 4200);
   }
 
+  function restartRound(){
+    state.tasks.forEach(function(t){ t.done = false; });
+    saveState();
+    renderTaskList();
+    show("tasklist");
+  }
+
   // ---------- ADMIN ----------
   function renderAdmin(){
     var rows = document.getElementById("adminTaskRows");
@@ -516,51 +509,6 @@
       });
       rewardRows.appendChild(row);
     });
-
-    var presetRows = document.getElementById("presetRows");
-    presetRows.innerHTML = "";
-    if(!state.presets.length){
-      presetRows.innerHTML = '<div class="empty-state" style="margin-top:0;">No saved lists yet.</div>';
-    } else {
-      state.presets.forEach(function(p){
-        var row = document.createElement("div");
-        row.className = "preset-row";
-        row.innerHTML =
-          '<span class="preset-name">' + escapeHtml(p.name) + '</span>' +
-          '<button class="preset-load">Load</button>' +
-          '<button class="row-del">✕</button>';
-        row.querySelector(".preset-load").addEventListener("click", function(){
-          loadPreset(p.id);
-        });
-        row.querySelector(".row-del").addEventListener("click", function(){
-          state.presets = state.presets.filter(function(x){ return x.id !== p.id; });
-          saveState();
-          renderAdmin();
-        });
-        presetRows.appendChild(row);
-      });
-    }
-  }
-
-  function savePreset(){
-    var nameInput = document.getElementById("presetNameInput");
-    var name = nameInput.value.trim();
-    if(!name) return;
-    var taskNames = state.tasks.map(function(t){ return t.name.trim(); }).filter(function(n){ return n.length > 0; });
-    if(!taskNames.length) return;
-    state.presets.push({ id: "p" + Date.now(), name: name, tasks: taskNames });
-    saveState();
-    nameInput.value = "";
-    renderAdmin();
-  }
-
-  function loadPreset(id){
-    var preset = state.presets.find(function(p){ return p.id === id; });
-    if(!preset) return;
-    state.tasks = preset.tasks.map(function(name, i){
-      return { id: "t" + Date.now() + "_" + i, name: name, done: false };
-    });
-    renderAdmin();
   }
 
   function addAdminTask(){
@@ -595,11 +543,11 @@
       case "admin-cancel": show("splash"); break;
       case "admin-add-task": addAdminTask(); break;
       case "admin-add-reward": addAdminReward(); break;
-      case "admin-save-preset": savePreset(); break;
       case "admin-save": saveAdmin(); break;
       case "task-done": completeActiveTask(); break;
       case "task-back": activeTaskId = null; show("tasklist"); break;
       case "reward-home": show("splash"); break;
+      case "admin-restart": restartRound(); break;
     }
   });
 
