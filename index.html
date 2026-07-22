@@ -101,9 +101,10 @@
   .splash-sub{ color: var(--bone-dim); font-size: 15px; max-width: 280px; }
 
   .yesno{ display:flex; gap: 16px; margin-top: 6px; width: 100%; max-width: 340px; }
+  .yesno .btn{ flex:1; }
   .btn{
     border: none; border-radius: 16px; padding: 18px 10px; font-weight: 800; font-size: 18px;
-    cursor:pointer; flex:1; color: var(--bg);
+    cursor:pointer; flex-shrink: 0; color: var(--bg);
   }
   .btn:active{ transform: scale(0.96); }
   .btn-yes{ background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); box-shadow: 0 8px 20px rgba(255,117,24,0.35); }
@@ -139,6 +140,7 @@
   #taskdetail h2{ font-size: 30px; max-width: 300px; }
   .task-hint{ color: var(--bone-dim); font-size: 14px; max-width: 260px; }
   .btn-wide{ width: 100%; max-width: 320px; }
+  .btn-half{ max-width: 160px; }
   .btn-ghost{ background: transparent; border: 2px solid rgba(255,255,255,0.14); color: var(--bone-dim); font-weight:700; padding: 14px; border-radius: 14px; }
 
   /* ---------- PARENT VERIFY ---------- */
@@ -228,7 +230,7 @@
     <div class="task-big-icon">🧹</div>
     <h2 id="taskDetailName">Task</h2>
     <p class="task-hint">Do the chore, then hand the phone back to a parent to check it off.</p>
-    <button class="btn btn-yes btn-wide" data-action="task-done">I did it!</button>
+    <button class="btn btn-yes btn-wide btn-half" data-action="task-done">I did it!</button>
     <button class="btn-ghost btn-wide" data-action="task-back">Back to list</button>
   </section>
 
