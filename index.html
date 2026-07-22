@@ -62,14 +62,19 @@
   }
 
   .screen{
-    flex: 1;
+    position: absolute;
+    inset: 0;
     display: none;
     flex-direction: column;
-    animation: fadeIn .35s ease;
   }
   .screen.active{ display: flex; }
 
-  @keyframes fadeIn{ from{ opacity:0; transform: translateY(8px);} to{opacity:1; transform:none;} }
+  @keyframes slideInRight{ from{ transform: translateX(100%); } to{ transform: translateX(0); } }
+  @keyframes slideInLeft{ from{ transform: translateX(-100%); } to{ transform: translateX(0); } }
+  @keyframes slideOutLeft{ from{ transform: translateX(0); } to{ transform: translateX(-100%); } }
+  @keyframes slideOutRight{ from{ transform: translateX(0); } to{ transform: translateX(100%); } }
+
+  .back-corner{ position:absolute; top: calc(var(--safe-top) + 14px); left: 4px; z-index: 2; }
 
   h1, h2, h3{ font-family: 'Creepster', cursive; letter-spacing: .5px; margin: 0; font-weight: normal; }
 
@@ -97,7 +102,7 @@
   #splash{ align-items:center; justify-content:center; text-align:center; gap: 22px; position: relative; }
   .admin-corner{ position:absolute; top: calc(var(--safe-top) + 14px); right: 4px; }
 
-  .pumpkin-wrap{ width: 160px; height: 160px; position:relative; background: var(--bg); border-radius: 16px; animation: bob 3.2s ease-in-out infinite; }
+  .pumpkin-wrap{ width: 192px; height: 192px; margin-top: 60px; position:relative; background: var(--bg); border-radius: 16px; animation: bob 3.2s ease-in-out infinite; }
   @keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-10px);} }
   #splashGif{ width: 100%; height: 100%; object-fit: contain; border-radius: 16px; }
 
@@ -116,6 +121,16 @@
   .btn:active{ transform: scale(0.96); }
   .btn-yes{ background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); box-shadow: 0 8px 20px rgba(255,117,24,0.35); }
   .btn-no{ background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14); }
+
+  .yesno .btn-yes{ position:relative; animation: yesBreathe 2.4s ease-in-out infinite; }
+  .yesno .btn-yes::before{
+    content:""; position:absolute; inset:-14px; border-radius: 26px;
+    background: radial-gradient(circle, rgba(255,117,24,0.55), transparent 70%);
+    filter: blur(10px); z-index:-1;
+    animation: yesGlow 2.4s ease-in-out infinite;
+  }
+  @keyframes yesBreathe{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.045); } }
+  @keyframes yesGlow{ 0%,100%{ opacity:0.5; transform: scale(0.92); } 50%{ opacity:0.9; transform: scale(1.08); } }
 
   .spooky-no{ color: var(--bone-dim); font-size: 14px; min-height: 20px; }
 
@@ -152,6 +167,7 @@
 
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
+  #reward h2{ font-size: 34px; }
   .reward-card{ background: var(--panel); border-radius: var(--radius); padding: 26px 22px; max-width: 320px; border: 1px solid rgba(124,252,110,0.25); box-shadow: 0 0 30px rgba(124,252,110,0.12); }
   .reward-label{ font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slime); font-weight: 800; }
   .reward-text{ font-size: 22px; font-weight: 800; margin-top: 8px; color: var(--bone); }
@@ -168,6 +184,38 @@
     100%{ transform: translateY(110vh) rotate(720deg); opacity: 0.9; }
   }
 
+  .bat-layer{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index: 50; }
+  .bat{ position:absolute; font-size: 26px; }
+  @keyframes batFlyRight{
+    0%{ transform: translateX(0) translateY(0); }
+    50%{ transform: translateX(60vw) translateY(-24px); }
+    100%{ transform: translateX(120vw) translateY(10px); }
+  }
+  @keyframes batFlyLeft{
+    0%{ transform: translateX(0) translateY(0) scaleX(-1); }
+    50%{ transform: translateX(-60vw) translateY(-24px) scaleX(-1); }
+    100%{ transform: translateX(-120vw) translateY(10px) scaleX(-1); }
+  }
+
+  .lightning-layer{ position:fixed; inset:0; pointer-events:none; z-index: 900; background: rgba(255,255,255,0); }
+  .lightning-layer.strike{ animation: lightningFlash 0.8s ease-out; }
+  @keyframes lightningFlash{
+    0%{ background: rgba(255,255,255,0); }
+    5%{ background: rgba(255,255,255,0.85); }
+    10%{ background: rgba(255,255,255,0.1); }
+    15%{ background: rgba(255,255,255,0.7); }
+    25%{ background: rgba(255,255,255,0); }
+    100%{ background: rgba(255,255,255,0); }
+  }
+  @keyframes screenShake{
+    0%,100%{ transform: translate(0,0); }
+    20%{ transform: translate(-4px, 2px); }
+    40%{ transform: translate(3px, -3px); }
+    60%{ transform: translate(-2px, 3px); }
+    80%{ transform: translate(2px, -2px); }
+  }
+  #app.shake{ animation: screenShake 0.4s ease; }
+
   /* ---------- ADMIN ---------- */
   #admin{ gap: 14px; overflow-y:auto; }
   .field-label{ font-size: 13px; color: var(--bone-dim); font-weight: 700; margin-bottom: 6px; display:block; }
@@ -175,20 +223,33 @@
     width:100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
     color: var(--bone); border-radius: 12px; padding: 12px 14px; font-size: 16px; font-family: inherit;
   }
-  .admin-section{ background: var(--panel); border-radius: var(--radius); padding: 16px; }
+  .admin-section{
+    background: var(--panel); border-radius: var(--radius); padding: 16px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
   .admin-task-row{ display:flex; gap:8px; align-items:center; margin-bottom: 10px; }
   .admin-task-row .input{ flex:1; }
+  .drag-handle{
+    background: none; border:none; color: var(--bone-dim); font-size: 20px;
+    cursor: grab; flex-shrink:0; padding: 0 4px; touch-action: none;
+  }
+  .admin-task-row.dragging{
+    position: relative; z-index: 5; opacity: 0.9;
+    box-shadow: 0 12px 22px rgba(0,0,0,0.4); border-radius: 12px;
+  }
   .row-del{ background: rgba(196,58,49,0.18); color: var(--blood); border:none; width:38px; height:38px; border-radius:10px; font-size: 16px; flex-shrink:0; }
   .add-row{ background: rgba(255,117,24,0.15); color: var(--pumpkin); border: 1px dashed var(--pumpkin); border-radius: 12px; padding: 12px; font-weight: 800; width:100%; }
   .save-bar{ display:flex; gap: 10px; margin-top: 4px; }
   .btn-save{ background: var(--pumpkin); color: var(--bg); flex:1; border-radius:14px; padding:14px; font-weight:800; border:none; }
-  .btn-cancel{ background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14); border-radius:14px; padding:14px; font-weight:700; }
 
   ::-webkit-scrollbar{ display:none; }
 </style>
 </head>
 <body>
 <div id="confettiLayer" class="confetti-layer"></div>
+<div id="batLayer" class="bat-layer"></div>
+<div id="lightningLayer" class="lightning-layer"></div>
 <div id="app">
 
   <!-- SPLASH -->
@@ -224,6 +285,7 @@
   <!-- TASK LIST -->
   <section id="tasklist" class="screen">
     <div class="topbar">
+      <button class="icon-btn" data-action="tasklist-back" aria-label="Back">←</button>
       <span class="brand">🎃 Trick or Chores</span>
       <button class="customize-btn" data-action="open-admin" aria-label="Parent settings">⚙️ Customize</button>
     </div>
@@ -236,6 +298,7 @@
 
   <!-- TASK DETAIL (kid) -->
   <section id="taskdetail" class="screen">
+    <button class="icon-btn back-corner" data-action="task-back" aria-label="Back">←</button>
     <div class="task-big-icon">🧹</div>
     <h2 id="taskDetailName">Task</h2>
     <p class="task-hint" id="taskDetailHint">Do the chore, then come back and check it off.</p>
@@ -245,6 +308,7 @@
 
   <!-- REWARD -->
   <section id="reward" class="screen">
+    <button class="icon-btn back-corner" data-action="reward-home" aria-label="Back">←</button>
     <div style="font-size:56px;">🏆</div>
     <h2>All done!</h2>
     <div class="completed-list" id="completedList"></div>
@@ -275,10 +339,9 @@
       <button class="add-row" data-action="admin-add-reward">+ Add a reward</button>
     </div>
 
-    <button class="btn-ghost" data-action="admin-restart">Reset chores for a new round</button>
+    <button class="btn-ghost" data-action="admin-restart">Start Over</button>
 
     <div class="save-bar">
-      <button class="btn-cancel" data-action="admin-cancel">Cancel</button>
       <button class="btn-save" data-action="admin-save">Save changes</button>
     </div>
   </section>
@@ -363,10 +426,36 @@
     screens[id] = document.getElementById(id);
   });
 
-  function show(id){
-    Object.keys(screens).forEach(function(k){
-      screens[k].classList.toggle("active", k === id);
-    });
+  var currentScreenId = "splash";
+  var transitioning = false;
+
+  function show(id, direction){
+    if(id === currentScreenId) return;
+    var fromEl = screens[currentScreenId];
+    var toEl = screens[id];
+    if(!fromEl || !toEl) return;
+
+    direction = direction || "forward";
+
+    if(transitioning){
+      fromEl.classList.remove("active");
+      fromEl.style.animation = "";
+    }
+    transitioning = true;
+
+    toEl.classList.add("active");
+    toEl.style.animation = (direction === "back" ? "slideInLeft" : "slideInRight") + " .32s ease forwards";
+    fromEl.style.animation = (direction === "back" ? "slideOutRight" : "slideOutLeft") + " .32s ease forwards";
+
+    var prevId = currentScreenId;
+    currentScreenId = id;
+
+    setTimeout(function(){
+      screens[prevId].classList.remove("active");
+      screens[prevId].style.animation = "";
+      toEl.style.animation = "";
+      transitioning = false;
+    }, 320);
   }
 
   // ---------- SPLASH ----------
@@ -411,14 +500,14 @@
     });
   }
 
-  function goToTaskListOrReward(){
+  function goToTaskListOrReward(direction){
     renderTaskList();
     var done = state.tasks.filter(function(t){ return t.done; }).length;
     var total = state.tasks.length;
     if(total > 0 && done === total){
-      goToReward();
+      goToReward(direction);
     } else {
-      show("tasklist");
+      show("tasklist", direction);
     }
   }
 
@@ -438,12 +527,12 @@
     document.getElementById("taskDetailHint").textContent = remaining <= 1
       ? "Do the chore, then hand the phone back to a parent to check it off."
       : "Do the chore, then come back and check it off.";
-    show("taskdetail");
+    show("taskdetail", "forward");
   }
 
   function openAdmin(){
     renderAdmin();
-    show("admin");
+    show("admin", "forward");
   }
 
   function completeActiveTask(){
@@ -451,11 +540,11 @@
     if(t) t.done = true;
     saveState();
     activeTaskId = null;
-    goToTaskListOrReward();
+    goToTaskListOrReward("forward");
   }
 
   // ---------- REWARD ----------
-  function goToReward(){
+  function goToReward(direction){
     var reward = state.rewards && state.rewards.length
       ? state.rewards[Math.floor(Math.random() * state.rewards.length)]
       : pickExampleReward();
@@ -463,16 +552,17 @@
     document.getElementById("completedList").innerHTML = state.tasks.map(function(t){
       return '<div class="completed-item"><span class="check">✓</span>' + escapeHtml(t.name) + '</div>';
     }).join("");
-    show("reward");
-    spawnConfetti();
+    show("reward", direction || "forward");
+    spawnConfetti(60);
   }
 
-  function spawnConfetti(){
+  function spawnConfetti(count){
+    count = count || 60;
     var layer = document.getElementById("confettiLayer");
     if(!layer) return;
     layer.innerHTML = "";
     var colors = ["#FF7518", "#FFD08A", "#7CFC6E", "#F3EAD8", "#C43A31", "#FF9A44"];
-    for(var i = 0; i < 60; i++){
+    for(var i = 0; i < count; i++){
       var piece = document.createElement("div");
       piece.className = "confetti-piece";
       piece.style.left = (Math.random() * 100) + "%";
@@ -487,10 +577,12 @@
   }
 
   function restartRound(){
-    state.tasks.forEach(function(t){ t.done = false; });
+    var fresh = buildDefaultState();
+    state.tasks = fresh.tasks;
+    state.rewards = fresh.rewards;
     saveState();
     renderTaskList();
-    show("tasklist");
+    show("tasklist", "forward");
   }
 
   // ---------- ADMIN ----------
@@ -502,6 +594,7 @@
       row.className = "admin-task-row";
       row.setAttribute("data-id", t.id);
       row.innerHTML =
+        '<button class="drag-handle" aria-label="Drag to reorder">⠿</button>' +
         '<input class="input" value="' + t.name.replace(/"/g,'&quot;') + '" />' +
         '<button class="row-del">✕</button>';
       row.querySelector("input").addEventListener("input", function(e){
@@ -533,6 +626,64 @@
     });
   }
 
+  function enableChoreDrag(){
+    var container = document.getElementById("adminTaskRows");
+    var dragEl = null, pointerId = null, startY = 0;
+
+    container.addEventListener("pointerdown", function(e){
+      var handle = e.target.closest(".drag-handle");
+      if(!handle) return;
+      var row = handle.closest(".admin-task-row");
+      if(!row) return;
+      dragEl = row;
+      pointerId = e.pointerId;
+      startY = e.clientY;
+      row.setPointerCapture(pointerId);
+      row.classList.add("dragging");
+      e.preventDefault();
+    });
+
+    container.addEventListener("pointermove", function(e){
+      if(!dragEl || e.pointerId !== pointerId) return;
+      var dy = e.clientY - startY;
+      dragEl.style.transform = "translateY(" + dy + "px)";
+
+      var rows = Array.prototype.slice.call(container.querySelectorAll(".admin-task-row"));
+      var dragRect = dragEl.getBoundingClientRect();
+      var dragCenter = dragRect.top + dragRect.height / 2;
+
+      rows.forEach(function(row){
+        if(row === dragEl) return;
+        var rect = row.getBoundingClientRect();
+        var rowCenter = rect.top + rect.height / 2;
+        var dragIsAfter = !!(dragEl.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_PRECEDING);
+        if(dragIsAfter && dragCenter < rowCenter){
+          container.insertBefore(dragEl, row);
+          startY -= (rect.height + 10);
+          dragEl.style.transform = "translateY(" + (e.clientY - startY) + "px)";
+        } else if(!dragIsAfter && dragCenter > rowCenter){
+          container.insertBefore(dragEl, row.nextSibling);
+          startY += (rect.height + 10);
+          dragEl.style.transform = "translateY(" + (e.clientY - startY) + "px)";
+        }
+      });
+    });
+
+    function endDrag(e){
+      if(!dragEl || e.pointerId !== pointerId) return;
+      dragEl.classList.remove("dragging");
+      dragEl.style.transform = "";
+      var ids = Array.prototype.slice.call(container.querySelectorAll(".admin-task-row")).map(function(r){
+        return r.getAttribute("data-id");
+      });
+      state.tasks.sort(function(a, b){ return ids.indexOf(a.id) - ids.indexOf(b.id); });
+      dragEl = null;
+      pointerId = null;
+    }
+    container.addEventListener("pointerup", endDrag);
+    container.addEventListener("pointercancel", endDrag);
+  }
+
   function addAdminTask(){
     var id = "t" + Date.now();
     state.tasks.push({ id: id, name: "", done: false });
@@ -549,7 +700,7 @@
     state.rewards = state.rewards.map(function(r){ return r.trim(); }).filter(function(r){ return r.length > 0; });
     if(!state.rewards.length){ state.rewards = exampleRewards.slice(); }
     saveState();
-    goToTaskListOrReward();
+    goToTaskListOrReward("back");
   }
 
   // ---------- EVENTS ----------
@@ -558,20 +709,61 @@
     if(!btn) return;
     var action = btn.getAttribute("data-action");
     switch(action){
-      case "splash-yes": goToTaskListOrReward(); break;
+      case "splash-yes": goToTaskListOrReward("forward"); break;
       case "splash-no": splashNo(); break;
       case "open-admin": openAdmin(); break;
-      case "close-admin": show(state.tasks.length ? "tasklist" : "splash"); break;
-      case "admin-cancel": show("splash"); break;
+      case "close-admin": show(state.tasks.length ? "tasklist" : "splash", "back"); break;
       case "admin-add-task": addAdminTask(); break;
       case "admin-add-reward": addAdminReward(); break;
       case "admin-save": saveAdmin(); break;
-      case "task-done": completeActiveTask(); break;
-      case "task-back": activeTaskId = null; show("tasklist"); break;
-      case "reward-home": show("splash"); break;
+      case "task-done": spawnConfetti(24); completeActiveTask(); break;
+      case "task-back": activeTaskId = null; show("tasklist", "back"); break;
+      case "reward-home": show("splash", "back"); break;
+      case "tasklist-back": show("splash", "back"); break;
       case "admin-restart": restartRound(); break;
     }
   });
+
+  // ---------- AMBIENT EFFECTS ----------
+  function spawnBat(){
+    var layer = document.getElementById("batLayer");
+    if(!layer) return;
+    var bat = document.createElement("div");
+    bat.className = "bat";
+    bat.textContent = "🦇";
+    var fromLeft = Math.random() < 0.5;
+    bat.style.top = (10 + Math.random() * 70) + "vh";
+    var duration = 4 + Math.random() * 2;
+    bat.style.animationDuration = duration + "s";
+    bat.style.animationTimingFunction = "linear";
+    if(fromLeft){
+      bat.style.left = "-10vw";
+      bat.style.animationName = "batFlyRight";
+    } else {
+      bat.style.left = "auto";
+      bat.style.right = "-10vw";
+      bat.style.animationName = "batFlyLeft";
+    }
+    layer.appendChild(bat);
+    setTimeout(function(){ bat.remove(); }, duration * 1000 + 200);
+  }
+  setInterval(spawnBat, 2000);
+
+  function strikeLightning(){
+    var layer = document.getElementById("lightningLayer");
+    var app = document.getElementById("app");
+    if(!layer) return;
+    layer.classList.remove("strike");
+    app.classList.remove("shake");
+    void layer.offsetWidth;
+    layer.classList.add("strike");
+    app.classList.add("shake");
+    setTimeout(function(){
+      layer.classList.remove("strike");
+      app.classList.remove("shake");
+    }, 800);
+  }
+  setInterval(strikeLightning, 60000);
 
   // unregister any previously installed service worker so pages are never cached
   if("serviceWorker" in navigator){
@@ -580,8 +772,8 @@
     }).catch(function(){});
   }
 
+  enableChoreDrag();
   renderTaskList();
-  show("splash");
 })();
 </script>
 </body>
