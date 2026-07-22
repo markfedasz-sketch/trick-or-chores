@@ -303,28 +303,50 @@
     return exampleRewards[Math.floor(Math.random() * exampleRewards.length)];
   }
 
-  var defaultState = {
-    tasks: [
-      { id: "t1", name: "Wash the dishes", done: false },
-      { id: "t2", name: "Clean your room", done: false },
-      { id: "t3", name: "Take out the trash", done: false }
-    ],
-    rewards: exampleRewards.slice()
-  };
+  var exampleChores = [
+    "Wash the dishes",
+    "Clean your room",
+    "Take out the trash",
+    "Make your bed",
+    "Feed the pet",
+    "Put away your toys",
+    "Vacuum the living room",
+    "Fold the laundry",
+    "Wipe down the table",
+    "Water the plants"
+  ];
+  function pickRandomChores(count){
+    var pool = exampleChores.slice();
+    var picked = [];
+    while(picked.length < count && pool.length){
+      var idx = Math.floor(Math.random() * pool.length);
+      picked.push(pool.splice(idx, 1)[0]);
+    }
+    return picked;
+  }
+
+  function buildDefaultState(){
+    return {
+      tasks: pickRandomChores(3).map(function(name, i){
+        return { id: "t" + (i + 1), name: name, done: false };
+      }),
+      rewards: [pickExampleReward()]
+    };
+  }
 
   function loadState(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return JSON.parse(JSON.stringify(defaultState));
+      if(!raw) return buildDefaultState();
       var parsed = JSON.parse(raw);
-      if(!parsed.tasks) return JSON.parse(JSON.stringify(defaultState));
+      if(!parsed.tasks) return buildDefaultState();
       if(!parsed.rewards || !parsed.rewards.length){
-        parsed.rewards = parsed.reward ? [parsed.reward] : exampleRewards.slice();
+        parsed.rewards = parsed.reward ? [parsed.reward] : [pickExampleReward()];
       }
       delete parsed.reward;
       return parsed;
     }catch(e){
-      return JSON.parse(JSON.stringify(defaultState));
+      return buildDefaultState();
     }
   }
 
