@@ -239,7 +239,7 @@
       <div class="reward-label">Tonight's reward</div>
       <div class="reward-text" id="rewardText">—</div>
     </div>
-    <button class="btn btn-yes btn-wide" data-action="reward-restart">Start a new round</button>
+    <p class="task-hint">Show this screen to a parent to collect your reward!</p>
   </section>
 
   <!-- ADMIN -->
@@ -259,6 +259,8 @@
       <span class="field-label">Tonight's reward</span>
       <input class="input" id="adminReward" placeholder="e.g. Extra candy + a scary movie" />
     </div>
+
+    <button class="btn-ghost" data-action="admin-restart">Reset chores for a new round</button>
 
     <div class="save-bar">
       <button class="btn-cancel" data-action="admin-cancel">Cancel</button>
@@ -495,7 +497,7 @@
       case "admin-save": saveAdmin(); break;
       case "task-done": completeActiveTask(); break;
       case "task-back": activeTaskId = null; show("tasklist"); break;
-      case "reward-restart": restartRound(); break;
+      case "admin-restart": restartRound(); break;
     }
   });
 
