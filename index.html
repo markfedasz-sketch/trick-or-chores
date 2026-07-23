@@ -1029,11 +1029,16 @@
   playSplashLoop();
 
   // browsers block audio autoplay until the user has interacted with the
-  // page at least once — start the splash loop for real on that first tap
+  // page at least once — start the splash loop for real on that first tap.
+  // Deferred so that if this very tap is also navigating away from splash
+  // (e.g. tapping "Yes!"), currentScreenId has already updated by the time
+  // we check, and we correctly skip starting a loop we'd have to stop again.
   document.addEventListener("pointerdown", function(){
-    if(currentScreenId === "splash"){
-      playSplashLoop();
-    }
+    setTimeout(function(){
+      if(currentScreenId === "splash"){
+        playSplashLoop();
+      }
+    }, 0);
   }, { once: true });
 })();
 </script>
