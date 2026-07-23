@@ -51,10 +51,6 @@
     inset: 0;
     display: flex;
     flex-direction: column;
-    padding-top: calc(var(--safe-top) + 14px);
-    padding-bottom: calc(var(--safe-bottom) + 14px);
-    padding-left: 18px;
-    padding-right: 18px;
     background: var(--bg);
     overflow: hidden;
   }
@@ -64,15 +60,18 @@
     inset: 0;
     display: none;
     flex-direction: column;
+    padding-top: calc(var(--safe-top) + 14px);
+    padding-bottom: calc(var(--safe-bottom) + 14px);
+    padding-left: 18px;
+    padding-right: 18px;
   }
   .screen.active{ display: flex; }
+  body.has-nav .screen{ padding-bottom: calc(var(--safe-bottom) + 84px); }
 
   @keyframes slideInRight{ from{ transform: translateX(100%); } to{ transform: translateX(0); } }
   @keyframes slideInLeft{ from{ transform: translateX(-100%); } to{ transform: translateX(0); } }
   @keyframes slideOutLeft{ from{ transform: translateX(0); } to{ transform: translateX(-100%); } }
   @keyframes slideOutRight{ from{ transform: translateX(0); } to{ transform: translateX(100%); } }
-
-  .back-corner{ position:absolute; top: calc(var(--safe-top) + 14px); left: 4px; z-index: 2; }
 
   h1, h2, h3{ font-family: 'Creepster', cursive; letter-spacing: .5px; margin: 0; font-weight: normal; }
 
@@ -236,8 +235,27 @@
     color: var(--bone); font-size: 20px; opacity: 0.85;
     display:flex; align-items:center; justify-content:center;
     cursor:pointer; z-index: 400;
+    transition: bottom .2s ease;
   }
   .mute-btn:active{ transform: scale(0.94); }
+  body.has-nav .mute-btn{ bottom: calc(var(--safe-bottom) + 80px); }
+
+  .bottom-nav{
+    position: fixed; left:0; right:0; bottom:0; z-index: 500;
+    display:none; gap: 4px;
+    background: rgba(18,13,26,0.92); backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 6px 6px calc(var(--safe-bottom) + 6px);
+  }
+  body.has-nav .bottom-nav{ display:flex; }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap: 3px; padding: 8px 2px; background:none; border:none; border-radius: 12px;
+    color: var(--bone-dim); font-size: 11px; font-weight: 800; cursor:pointer;
+  }
+  .nav-item .nav-icon{ font-size: 20px; }
+  .nav-item.active{ color: var(--pumpkin); background: rgba(255,117,24,0.14); }
+  .nav-item:active{ transform: scale(0.94); }
 
   .lightning-layer{ position:fixed; inset:0; pointer-events:none; z-index: 900; background: rgba(255,255,255,0); }
   .lightning-layer.strike{ animation: lightningFlash 0.8s ease-out; }
@@ -315,6 +333,20 @@
   </svg>
 </div>
 <button id="muteToggle" class="mute-btn" data-action="toggle-mute" aria-label="Mute sounds">🔊</button>
+<nav id="bottomNav" class="bottom-nav">
+  <button class="nav-item" data-action="nav-home" aria-label="Home">
+    <span class="nav-icon">🏠</span><span>Home</span>
+  </button>
+  <button class="nav-item" data-action="nav-chores" aria-label="Chores list">
+    <span class="nav-icon">📋</span><span>Chores</span>
+  </button>
+  <button class="nav-item" data-action="nav-customize" aria-label="Customize">
+    <span class="nav-icon">⚙️</span><span>Customize</span>
+  </button>
+  <button class="nav-item" data-action="nav-start-over" aria-label="Start over">
+    <span class="nav-icon">🔄</span><span>Start Over</span>
+  </button>
+</nav>
 <div id="app">
 
   <!-- SPLASH -->
@@ -349,10 +381,8 @@
 
   <!-- TASK LIST -->
   <section id="tasklist" class="screen">
-    <div class="topbar">
-      <button class="icon-btn" data-action="tasklist-back" aria-label="Back">←</button>
+    <div class="topbar" style="justify-content:center;">
       <span class="brand">🎃 Trick or Chores</span>
-      <button class="customize-btn" data-action="open-admin" aria-label="Parent settings">⚙️ Customize</button>
     </div>
     <div class="progress-wrap">
       <div class="pumpkin-trail" id="pumpkinTrail"></div>
@@ -368,17 +398,14 @@
 
   <!-- TASK DETAIL (kid) -->
   <section id="taskdetail" class="screen">
-    <button class="icon-btn back-corner" data-action="task-back" aria-label="Back">←</button>
     <div class="task-big-icon">🧹</div>
     <h2 id="taskDetailName">Task</h2>
     <p class="task-hint" id="taskDetailHint">Do the chore, then come back and check it off.</p>
     <button class="btn btn-yes btn-wide btn-half" data-action="task-done">I did it!</button>
-    <button class="btn-ghost btn-wide" data-action="task-back">Back to list</button>
   </section>
 
   <!-- REWARD -->
   <section id="reward" class="screen">
-    <button class="icon-btn back-corner" data-action="reward-home" aria-label="Back">←</button>
     <div style="font-size:56px;">🏆</div>
     <h2>All done!</h2>
     <div class="completed-list" id="completedList"></div>
@@ -387,13 +414,11 @@
       <div class="reward-text" id="rewardText">—</div>
     </div>
     <p class="task-hint reward-hint">Show this screen to a parent to collect your reward!</p>
-    <button class="btn-ghost btn-wide" data-action="reward-home">Back to Home</button>
   </section>
 
   <!-- ADMIN -->
   <section id="admin" class="screen">
     <div class="topbar">
-      <button class="icon-btn" data-action="close-admin" aria-label="Back">←</button>
       <span class="brand">Customize</span>
       <button class="icon-btn" data-action="close-admin" aria-label="Close">✕</button>
     </div>
@@ -409,8 +434,6 @@
       <div id="adminRewardRows"></div>
       <button class="add-row" data-action="admin-add-reward">+ Add a reward</button>
     </div>
-
-    <button class="btn-ghost" data-action="admin-restart">Start Over</button>
 
     <div class="save-bar">
       <button class="btn-save" data-action="admin-save">Save changes</button>
@@ -515,6 +538,9 @@
       stopSplashLoop();
     }
 
+    document.body.classList.toggle("has-nav", id !== "splash");
+    updateNavActive(id);
+
     // clean up any screen left mid-transition by a superseded navigation
     Object.keys(screens).forEach(function(k){
       if(k !== fromId && k !== id){
@@ -538,6 +564,14 @@
       fromEl.style.animation = "";
       toEl.style.animation = "";
     }, 320);
+  }
+
+  function updateNavActive(id){
+    var navMap = { tasklist: "nav-chores", admin: "nav-customize" };
+    var activeAction = navMap[id];
+    document.querySelectorAll(".nav-item").forEach(function(btn){
+      btn.classList.toggle("active", btn.getAttribute("data-action") === activeAction);
+    });
   }
 
   // ---------- SPLASH ----------
@@ -899,11 +933,11 @@
       case "admin-add-reward": addAdminReward(); break;
       case "admin-save": saveAdmin(); break;
       case "task-done": spawnConfetti(24); completeActiveTask(); break;
-      case "task-back": activeTaskId = null; show("tasklist", "back"); break;
-      case "reward-home": show("splash", "back"); break;
-      case "tasklist-back": show("splash", "back"); break;
-      case "admin-restart": restartRound(); break;
       case "toggle-mute": toggleMute(); break;
+      case "nav-home": activeTaskId = null; show("splash", "back"); break;
+      case "nav-chores": activeTaskId = null; show("tasklist", "back"); break;
+      case "nav-customize": openAdmin(); break;
+      case "nav-start-over": restartRound(); break;
     }
   });
 
@@ -976,6 +1010,14 @@
   renderTaskList();
   updateMuteButton();
   playSplashLoop();
+
+  // browsers block audio autoplay until the user has interacted with the
+  // page at least once — start the splash loop for real on that first tap
+  document.addEventListener("pointerdown", function(){
+    if(currentScreenId === "splash"){
+      playSplashLoop();
+    }
+  }, { once: true });
 })();
 </script>
 </body>
