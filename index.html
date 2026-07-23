@@ -418,9 +418,8 @@
 
   <!-- ADMIN -->
   <section id="admin" class="screen">
-    <div class="topbar">
+    <div class="topbar" style="justify-content:center;">
       <span class="brand">Customize</span>
-      <button class="icon-btn" data-action="close-admin" aria-label="Close">✕</button>
     </div>
 
     <div class="admin-section">
@@ -928,7 +927,6 @@
       case "splash-yes": playSound("StartGamePing.mp3"); goToTaskListOrReward("forward"); break;
       case "splash-no": splashNo(); break;
       case "open-admin": openAdmin(); break;
-      case "close-admin": show(state.tasks.length ? "tasklist" : "splash", "back"); break;
       case "admin-add-task": addAdminTask(); break;
       case "admin-add-reward": addAdminReward(); break;
       case "admin-save": saveAdmin(); break;
