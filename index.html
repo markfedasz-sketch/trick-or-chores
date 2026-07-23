@@ -537,6 +537,10 @@
       stopSplashLoop();
     }
 
+    if(fromId === "reward" && id !== "reward"){
+      stopRewardSound();
+    }
+
     document.body.classList.toggle("has-nav", id !== "splash");
     updateNavActive(id);
 
@@ -710,7 +714,7 @@
     }).join("");
     show("reward", direction || "forward");
     spawnConfetti(60);
-    playSound("BadWolf.mp3");
+    playRewardSound();
   }
 
   var MUTE_KEY = "trickOrChores:muted";
@@ -719,6 +723,8 @@
 
   var splashLoop = new Audio("creepybells.mp3");
   splashLoop.loop = true;
+
+  var rewardSound = new Audio("BadWolf.mp3");
 
   function updateMuteButton(){
     var btn = document.getElementById("muteToggle");
@@ -733,6 +739,7 @@
     if(soundMuted){
       activeSounds.forEach(function(a){ a.pause(); });
       activeSounds = [];
+      stopRewardSound();
     }
     if(currentScreenId === "splash"){
       if(soundMuted){ stopSplashLoop(); } else { playSplashLoop(); }
@@ -749,6 +756,18 @@
 
   function stopSplashLoop(){
     try{ splashLoop.pause(); }catch(e){}
+  }
+
+  function playRewardSound(){
+    if(soundMuted) return;
+    try{
+      rewardSound.currentTime = 0;
+      rewardSound.play().catch(function(){});
+    }catch(e){}
+  }
+
+  function stopRewardSound(){
+    try{ rewardSound.pause(); }catch(e){}
   }
 
   var activeSounds = [];
