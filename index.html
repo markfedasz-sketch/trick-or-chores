@@ -1131,6 +1131,24 @@
       }
     }, 0);
   }, { once: true });
+
+  // stop all sound the moment the tab/app is backgrounded or closed —
+  // browsers don't do this automatically, audio keeps playing otherwise.
+  // Resume the splash loop if the user comes back while still on splash.
+  function stopAllSound(){
+    stopSplashLoop();
+    stopRewardSound();
+    activeSounds.forEach(function(a){ a.pause(); });
+    activeSounds = [];
+  }
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden){
+      stopAllSound();
+    } else if(currentScreenId === "splash"){
+      playSplashLoop();
+    }
+  });
+  window.addEventListener("pagehide", stopAllSound);
 })();
 </script>
 </body>
