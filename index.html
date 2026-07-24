@@ -691,10 +691,11 @@
     '<rect x="21" y="23" width="4" height="5" fill="#FFD08A"/>' +
     '<rect x="18" y="30" width="4" height="4" fill="#FF7518"/></svg>';
 
-  var TRAIL_BOWL_SVG =
-    '<svg viewBox="0 0 40 40"><path fill="#FF7518" d="M6,20 C6,20 10,30 20,30 C30,30 34,20 34,20 Z"/>' +
-    '<ellipse cx="20" cy="20" rx="14" ry="4" fill="#C2540C"/>' +
-    '<circle cx="14" cy="17" r="3" fill="#7CFC6E"/><circle cx="22" cy="15" r="3" fill="#F3EAD8"/><circle cx="27" cy="19" r="3" fill="#FFD08A"/></svg>';
+  var TRAIL_GIFT_SVG =
+    '<svg viewBox="0 0 40 40"><rect x="8" y="18" width="24" height="16" fill="#FF7518"/>' +
+    '<rect x="6" y="13" width="28" height="7" fill="#C2540C"/>' +
+    '<rect x="17" y="13" width="6" height="21" fill="#F3EAD8"/>' +
+    '<path fill="#F3EAD8" d="M14,13 C14,8 18,6 20,10 C22,6 26,8 26,13 Z"/></svg>';
 
   function trailAmplitudeX(t){
     return Math.sin(t * Math.PI * 2.1) * TRAIL_AMPLITUDE;
@@ -804,7 +805,7 @@
       endEl.className = "trail-end";
       endEl.style.left = endPt.x + "px";
       endEl.style.top = endPt.y + "px";
-      endEl.innerHTML = '<div class="bowl">' + TRAIL_BOWL_SVG + '</div><div class="label">Treats</div>';
+      endEl.innerHTML = '<div class="bowl">' + TRAIL_GIFT_SVG + '</div><div class="label">Reward</div>';
       root.appendChild(endEl);
 
       var riderX, riderY;
