@@ -272,10 +272,20 @@
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
   #reward h2{ font-size: 34px; }
-  .reward-card{ background: var(--panel); border-radius: var(--radius); padding: 26px 22px; max-width: 320px; border: 1px solid rgba(124,252,110,0.25); box-shadow: 0 0 30px rgba(124,252,110,0.12); }
+  .reward-card{ position:relative; background: var(--panel); border-radius: var(--radius); padding: 26px 22px; max-width: 320px; border: 1px solid rgba(124,252,110,0.25); box-shadow: 0 0 30px rgba(124,252,110,0.12); overflow:hidden; }
   .reward-label{ font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--slime); font-weight: 800; }
-  .reward-text{ font-size: 22px; font-weight: 800; margin-top: 8px; color: var(--bone); }
+  .reward-text{ font-size: 22px; font-weight: 800; margin-top: 8px; color: var(--bone); min-height:28px; }
   .reward-hint{ font-size: 17px; }
+
+  .scratch-wrap{ position:absolute; inset:0; border-radius: var(--radius); overflow:hidden; }
+  .scratch-canvas{ position:absolute; inset:0; width:100%; height:100%; touch-action:none; cursor:pointer; }
+  .scratch-hint{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; pointer-events:none; color:#2a1608;
+  }
+  .scratch-hint .icon{ font-size:22px; animation: scratchWiggle 1.1s ease-in-out infinite; }
+  .scratch-hint .txt{ font-size:12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; }
+  @keyframes scratchWiggle{ 0%,100%{ transform:rotate(-8deg) translateX(-2px);} 50%{ transform:rotate(8deg) translateX(2px);} }
 
   .completed-list{ display:flex; flex-direction:column; gap: 8px; width:100%; max-width: 320px; }
   .completed-item{ display:flex; align-items:center; gap: 10px; font-size: 15px; color: var(--bone-dim); text-align:left; }
@@ -381,6 +391,7 @@
   #admin{ gap: 14px; }
   .admin-scroll{ flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling: touch; display:flex; flex-direction:column; gap:14px; }
   .field-label{ font-size: 13px; color: var(--bone-dim); font-weight: 700; margin-bottom: 6px; display:block; }
+  .field-hint{ font-size: 12.5px; color: var(--bone-dim); opacity:0.85; line-height:1.4; margin: -2px 0 10px; }
   .input{
     width:100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
     color: var(--bone); border-radius: 999px; padding: 12px 18px; font-size: 16px; font-family: inherit;
@@ -494,9 +505,16 @@
     <div style="font-size:56px;">🏆</div>
     <h2>All done!</h2>
     <div class="completed-list" id="completedList"></div>
-    <div class="reward-card">
+    <div class="reward-card" id="rewardCard">
       <div class="reward-label">Tonight's reward</div>
       <div class="reward-text" id="rewardText">—</div>
+      <div class="scratch-wrap" id="scratchWrap">
+        <canvas class="scratch-canvas" id="scratchCanvas"></canvas>
+        <div class="scratch-hint">
+          <div class="icon">🎃</div>
+          <div class="txt">Scratch to reveal</div>
+        </div>
+      </div>
     </div>
     <p class="task-hint reward-hint">Show this screen to a parent to collect your reward!</p>
   </section>
@@ -516,6 +534,7 @@
 
       <div class="admin-section">
         <span class="field-label">Rewards</span>
+        <p class="field-hint">This is a reward pool — one gets picked at random when all chores are done. We suggest adding at least two, so the reveal is an actual surprise instead of a foregone conclusion.</p>
         <div id="adminRewardRows"></div>
         <button class="add-row" data-action="admin-add-reward">+ Add a reward</button>
       </div>
@@ -962,8 +981,99 @@
       return '<div class="completed-item"><span class="check">✓</span>' + escapeHtml(t.name) + '</div>';
     }).join("");
     show("reward", direction || "forward");
-    spawnConfetti(60);
+    resetScratchCard();
     playRewardSound();
+  }
+
+  // ---------- REWARD SCRATCH-OFF ----------
+  var scratchCtx = null;
+  var scratchRevealed = false;
+  var scratchDragging = false;
+
+  function resetScratchCard(){
+    var wrap = document.getElementById("scratchWrap");
+    var canvas = document.getElementById("scratchCanvas");
+    if(!wrap || !canvas) return;
+    wrap.style.display = "block";
+    wrap.style.transition = "none";
+    wrap.style.opacity = "1";
+    scratchRevealed = false;
+
+    var rect = wrap.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    scratchCtx = canvas.getContext("2d");
+
+    var g = scratchCtx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    g.addColorStop(0, "#C2540C");
+    g.addColorStop(1, "#FF9A44");
+    scratchCtx.globalCompositeOperation = "source-over";
+    scratchCtx.fillStyle = g;
+    scratchCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+    scratchCtx.globalAlpha = 0.12;
+    scratchCtx.strokeStyle = "#000";
+    for(var i = 0; i < canvas.width; i += 6){
+      scratchCtx.beginPath();
+      scratchCtx.moveTo(i, 0);
+      scratchCtx.lineTo(i, canvas.height);
+      scratchCtx.stroke();
+    }
+    scratchCtx.globalAlpha = 1;
+  }
+
+  function scratchAt(x, y){
+    if(!scratchCtx) return;
+    scratchCtx.globalCompositeOperation = "destination-out";
+    scratchCtx.beginPath();
+    scratchCtx.arc(x, y, 22, 0, Math.PI * 2);
+    scratchCtx.fill();
+  }
+
+  function checkScratchCleared(canvas){
+    if(scratchRevealed || !scratchCtx) return;
+    var data = scratchCtx.getImageData(0, 0, canvas.width, canvas.height).data;
+    var cleared = 0, total = data.length / 4;
+    for(var i = 3; i < data.length; i += 4 * 12){
+      if(data[i] < 40) cleared++;
+    }
+    var ratio = cleared / (total / 12);
+    if(ratio > 0.55){
+      finishScratchReveal();
+    }
+  }
+
+  function finishScratchReveal(){
+    scratchRevealed = true;
+    var wrap = document.getElementById("scratchWrap");
+    wrap.style.transition = "opacity .4s ease";
+    wrap.style.opacity = "0";
+    setTimeout(function(){ wrap.style.display = "none"; }, 400);
+    spawnConfetti(60);
+  }
+
+  function initScratchCard(){
+    var canvas = document.getElementById("scratchCanvas");
+    if(!canvas) return;
+
+    function pos(e){
+      var rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    canvas.addEventListener("pointerdown", function(e){
+      scratchDragging = true;
+      var p = pos(e);
+      scratchAt(p.x, p.y);
+      checkScratchCleared(canvas);
+    });
+    canvas.addEventListener("pointermove", function(e){
+      if(!scratchDragging || scratchRevealed) return;
+      var p = pos(e);
+      scratchAt(p.x, p.y);
+      checkScratchCleared(canvas);
+    });
+    window.addEventListener("pointerup", function(){ scratchDragging = false; });
   }
 
   var MUTE_KEY = "trickOrChores:muted";
@@ -1283,6 +1393,7 @@
   playSplashLoop();
 
   document.getElementById("csRoot").addEventListener("click", finishCutscene);
+  initScratchCard();
 
   // browsers block audio autoplay until the user has interacted with the
   // page at least once — start the splash loop for real on that first tap.
