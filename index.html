@@ -131,56 +131,59 @@
 
   .spooky-no{ color: var(--bone-dim); font-size: 14px; min-height: 20px; }
 
-  /* ---------- TASK LIST ---------- */
-  #tasklist .list{ flex:1; overflow-y: auto; display:flex; flex-direction:column; gap: 12px; padding-top: 6px; }
-  .task-card{
-    background: var(--panel); border-radius: var(--radius); padding: 16px 16px;
-    display:flex; align-items:center; gap: 14px; border: 1px solid rgba(255,255,255,0.06);
-  }
-  .task-check{
-    width: 30px; height:30px; border-radius: 50%; border: 2px solid var(--pumpkin);
-    display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size: 15px;
-  }
-  .task-card.done{ opacity: .55; }
-  .task-card.done .task-check{ background: var(--slime); border-color: var(--slime); color: var(--bg); }
-  .task-name{ flex:1; font-weight: 700; font-size: 17px; }
-  .task-go{ font-size: 13px; color: var(--pumpkin); font-weight: 800; }
-
+  /* ---------- TASK LIST (trick-or-treat trail) ---------- */
   .empty-state{ text-align:center; color: var(--bone-dim); margin-top: 40px; font-size: 15px; padding: 0 20px; }
 
-  .progress-wrap{ margin: 8px 0 4px; }
+  .progress-label{ font-size: 12px; color: var(--bone-dim); margin: 2px 0 6px; text-align:center; }
 
-  .pumpkin-trail{ display:flex; gap: 10px; justify-content:center; margin-bottom: 10px; }
-  .trail-pumpkin{
-    font-size: 24px; opacity: 0.28; filter: grayscale(1);
-    transition: opacity .35s ease, filter .35s ease;
+  .trail-scroll{ flex:1; overflow-y:auto; position:relative; }
+  .trail-root{ position:relative; }
+  .trail-canvas{ position:absolute; left:0; top:0; pointer-events:none; }
+
+  .trail-start, .trail-end{ position:absolute; transform: translate(-50%,-50%); text-align:center; }
+  .trail-start{ font-size: 26px; opacity: 0.85; }
+  .trail-end .bowl{ font-size: 38px; filter: drop-shadow(0 0 14px rgba(255,208,138,0.65)); }
+  .trail-end .label{
+    margin-top:2px; font-size: 10.5px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
+    color: var(--glow);
   }
-  .trail-pumpkin.lit{ opacity: 1; filter: grayscale(0) drop-shadow(0 0 8px rgba(255,140,20,0.85)); }
-  .trail-pumpkin.pop{ animation: pumpkinPop .55s ease; }
+
+  .waypoint-dot{
+    position:absolute; transform: translate(-50%,-50%); cursor:pointer;
+    font-size: 26px; opacity: 0.3; filter: grayscale(1);
+    transition: opacity .3s ease, filter .3s ease;
+  }
+  .waypoint-dot.done{ opacity:1; filter: grayscale(0) drop-shadow(0 0 8px rgba(255,140,20,0.85)); }
+  .waypoint-dot.pop{ animation: pumpkinPop .55s ease; }
   @keyframes pumpkinPop{
-    0%{ transform: scale(1) rotate(0deg); }
-    35%{ transform: scale(1.6) rotate(-10deg); }
-    65%{ transform: scale(0.9) rotate(6deg); }
-    100%{ transform: scale(1) rotate(0deg); }
+    0%{ transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+    35%{ transform: translate(-50%,-50%) scale(1.6) rotate(-10deg); }
+    65%{ transform: translate(-50%,-50%) scale(0.9) rotate(6deg); }
+    100%{ transform: translate(-50%,-50%) scale(1) rotate(0deg); }
   }
+  .waypoint-card{
+    position:absolute; transform: translateY(-50%); cursor:pointer;
+    background: var(--panel); border-radius: 14px; padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.06); width: 46%; max-width: 190px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .waypoint-card.done{ opacity: .55; }
+  .waypoint-name{ font-weight: 700; font-size: 14px; color: var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .waypoint-go{ font-size: 10.5px; color: var(--pumpkin); font-weight: 800; }
+  .waypoint-check{ font-size: 11px; color: var(--slime); font-weight: 800; }
 
-  .progress-track{ height: 14px; border-radius: 8px; background: rgba(255,255,255,0.08); overflow:visible; position:relative; }
-  .progress-fill{
-    height:100%; border-radius: 8px; overflow:visible; position:relative;
-    background: linear-gradient(90deg, var(--pumpkin-dark), var(--pumpkin));
-    transition: width .5s ease;
+  .rider{
+    position:absolute; transform: translate(-50%,-50%);
+    font-size: 26px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.5));
+    animation: riderBob 2.2s ease-in-out infinite;
   }
-  .progress-rider{
-    position:absolute; top:50%; right:-6px; transform: translate(50%, -50%);
-    font-size: 20px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
-  }
-  .progress-rider.bump{ animation: riderBump .5s ease; }
+  .rider.bump{ animation: riderBump .5s ease; }
+  @keyframes riderBob{ 0%,100%{ transform: translate(-50%,-56%);} 50%{ transform: translate(-50%,-44%);} }
   @keyframes riderBump{
-    0%{ transform: translate(50%, -50%) scale(1) rotate(0deg); }
-    40%{ transform: translate(50%, -65%) scale(1.3) rotate(-12deg); }
-    100%{ transform: translate(50%, -50%) scale(1) rotate(0deg); }
+    0%{ transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+    40%{ transform: translate(-50%,-65%) scale(1.3) rotate(-12deg); }
+    100%{ transform: translate(-50%,-50%) scale(1) rotate(0deg); }
   }
-  .progress-label{ font-size: 12px; color: var(--bone-dim); margin-top: 6px; text-align:center; }
 
   /* ---------- TASK DETAIL (kid view) ---------- */
   #taskdetail{ align-items:center; justify-content:center; text-align:center; gap: 26px; }
@@ -390,16 +393,10 @@
     <div class="topbar" style="justify-content:center;">
       <span class="brand">🎃 Trick or Chores</span>
     </div>
-    <div class="progress-wrap">
-      <div class="pumpkin-trail" id="pumpkinTrail"></div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill" style="width:0%">
-          <span class="progress-rider" id="progressRider">👻</span>
-        </div>
-      </div>
-      <div class="progress-label" id="progressLabel">0 of 0 done</div>
+    <div class="progress-label" id="progressLabel">0 of 0 done</div>
+    <div class="trail-scroll" id="trailScroll">
+      <div class="trail-root" id="trailRoot"></div>
     </div>
-    <div class="list" id="taskListEl"></div>
   </section>
 
   <!-- TASK DETAIL (kid) -->
@@ -596,84 +593,172 @@
     playSound("laugh.mp3");
   }
 
-  // ---------- TASK LIST ----------
+  // ---------- TASK LIST (trick-or-treat trail) ----------
   var lastDoneCount = null;
 
-  function renderPumpkinTrail(done, total){
-    var trail = document.getElementById("pumpkinTrail");
-    if(!trail) return;
-    var pumpkins = trail.querySelectorAll(".trail-pumpkin");
-    if(pumpkins.length !== total){
-      trail.innerHTML = "";
-      for(var i = 0; i < total; i++){
-        var span = document.createElement("span");
-        span.className = "trail-pumpkin";
-        span.textContent = "🎃";
-        trail.appendChild(span);
+  var TRAIL_TOP = 50;
+  var TRAIL_STEP = 96;
+  var TRAIL_BOTTOM = 112;
+  var TRAIL_AMPLITUDE = 28;
+
+  function trailAmplitudeX(t){
+    return Math.sin(t * Math.PI * 2.1) * TRAIL_AMPLITUDE;
+  }
+
+  function trailPointAt(index, total, width){
+    var t = (index + 1) / (total + 1);
+    return {
+      x: width / 2 + trailAmplitudeX(t),
+      y: TRAIL_TOP + t * (total + 1) * TRAIL_STEP,
+      t: t
+    };
+  }
+
+  function renderTaskTrail(done, total){
+    var scrollArea = document.getElementById("trailScroll");
+    var root = document.getElementById("trailRoot");
+    if(!root || !scrollArea) return;
+    var width = scrollArea.clientWidth;
+    var pathHeight = TRAIL_TOP + (total + 1) * TRAIL_STEP + TRAIL_BOTTOM;
+
+    root.style.height = pathHeight + "px";
+    root.innerHTML = "";
+
+    var canvas = document.createElement("canvas");
+    canvas.className = "trail-canvas";
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = pathHeight * dpr;
+    canvas.style.width = width + "px";
+    canvas.style.height = pathHeight + "px";
+    root.appendChild(canvas);
+    var ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+
+    var startPt = { x: width / 2, y: 22 };
+    var endPt = { x: width / 2 + trailAmplitudeX(1), y: pathHeight - TRAIL_BOTTOM + 26 };
+    var doneT = total > 0 ? done / total : 0;
+
+    function drawSegment(fromFrac, toFrac, style){
+      ctx.beginPath();
+      ctx.lineWidth = style.width;
+      ctx.strokeStyle = style.color;
+      ctx.setLineDash(style.dash);
+      ctx.shadowBlur = style.glow;
+      ctx.shadowColor = style.glowColor;
+      var steps = 60;
+      var started = false;
+      for(var i = 0; i <= steps; i++){
+        var f = i / steps;
+        if(f < fromFrac || f > toFrac){ started = false; continue; }
+        var y = startPt.y + f * (endPt.y - startPt.y);
+        var tt = (y - TRAIL_TOP) / ((total + 1) * TRAIL_STEP);
+        var x = width / 2 + trailAmplitudeX(tt);
+        if(!started){ ctx.moveTo(x, y); started = true; }
+        else { ctx.lineTo(x, y); }
       }
-      pumpkins = trail.querySelectorAll(".trail-pumpkin");
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.setLineDash([]);
     }
-    pumpkins.forEach(function(p, i){
-      var shouldBeLit = i < done;
-      var wasLit = p.classList.contains("lit");
-      p.classList.toggle("lit", shouldBeLit);
-      if(shouldBeLit && !wasLit){
-        p.classList.remove("pop");
-        void p.offsetWidth;
-        p.classList.add("pop");
+
+    if(total > 0){
+      drawSegment(0, 1, { width: 3, color: "rgba(201,191,214,0.28)", dash: [2, 10], glow: 0, glowColor: "transparent" });
+      if(doneT > 0){
+        drawSegment(0, doneT, { width: 4, color: "#FF9A44", dash: [], glow: 10, glowColor: "rgba(255,117,24,0.65)" });
       }
-    });
+
+      var startEl = document.createElement("div");
+      startEl.className = "trail-start";
+      startEl.style.left = startPt.x + "px";
+      startEl.style.top = startPt.y + "px";
+      startEl.textContent = "🏚️";
+      root.appendChild(startEl);
+
+      var cardMargin = 16;
+
+      state.tasks.forEach(function(t, i){
+        var p = trailPointAt(i, total, width);
+        var isDone = t.done;
+        var justLit = isDone && i === done - 1 && lastDoneCount !== null && done > lastDoneCount;
+        var onRight = i % 2 === 0;
+
+        var dot = document.createElement("div");
+        dot.className = "waypoint-dot" + (isDone ? " done" : "") + (justLit ? " pop" : "");
+        dot.style.left = p.x + "px";
+        dot.style.top = p.y + "px";
+        dot.textContent = "🎃";
+        root.appendChild(dot);
+
+        var card = document.createElement("div");
+        card.className = "waypoint-card side-" + (onRight ? "right" : "left") + (isDone ? " done" : "");
+        card.style.top = p.y + "px";
+        if(onRight){ card.style.right = cardMargin + "px"; }
+        else { card.style.left = cardMargin + "px"; }
+        card.innerHTML =
+          '<span class="waypoint-name">' + escapeHtml(t.name) + '</span>' +
+          (isDone ? '<span class="waypoint-check">✓</span>' : '<span class="waypoint-go">Start →</span>');
+        if(!isDone){
+          card.addEventListener("click", function(){ openTask(t.id); });
+          dot.addEventListener("click", function(){ openTask(t.id); });
+        }
+        root.appendChild(card);
+      });
+
+      var endEl = document.createElement("div");
+      endEl.className = "trail-end";
+      endEl.style.left = endPt.x + "px";
+      endEl.style.top = endPt.y + "px";
+      endEl.innerHTML = '<div class="bowl">🍬</div><div class="label">Treats</div>';
+      root.appendChild(endEl);
+
+      var riderX, riderY;
+      if(done >= total){
+        var lastStop = trailPointAt(total - 1, total, width);
+        riderX = lastStop.x + (endPt.x - lastStop.x) * 0.65;
+        riderY = lastStop.y + (endPt.y - lastStop.y) * 0.65;
+      } else {
+        var behind = (done === 0) ? startPt : trailPointAt(done - 1, total, width);
+        var ahead = trailPointAt(done, total, width);
+        riderX = behind.x + (ahead.x - behind.x) * 0.5;
+        riderY = behind.y + (ahead.y - behind.y) * 0.5;
+      }
+      var justIncreased = lastDoneCount !== null && done > lastDoneCount;
+      var rider = document.createElement("div");
+      rider.className = "rider" + (justIncreased ? " bump" : "");
+      rider.style.left = riderX + "px";
+      rider.style.top = riderY + "px";
+      rider.textContent = (done >= total) ? "🎉" : "👻";
+      root.appendChild(rider);
+    }
   }
 
   function renderTaskList(){
-    var list = document.getElementById("taskListEl");
-    list.innerHTML = "";
     var done = state.tasks.filter(function(t){ return t.done; }).length;
     var total = state.tasks.length;
 
-    document.getElementById("progressFill").style.width = total ? (done/total*100) + "%" : "0%";
     document.getElementById("progressLabel").textContent = done + " of " + total + " done";
-    renderPumpkinTrail(done, total);
 
-    var rider = document.getElementById("progressRider");
-    if(rider){
-      rider.textContent = (total > 0 && done === total) ? "🎉" : "👻";
-      if(lastDoneCount !== null && done > lastDoneCount){
-        rider.classList.remove("bump");
-        void rider.offsetWidth;
-        rider.classList.add("bump");
-      }
-    }
-    lastDoneCount = done;
-
+    var root = document.getElementById("trailRoot");
     if(total === 0){
-      list.innerHTML = '<div class="empty-state">No chores yet. Tap ⚙️ Customize above to add some.</div>';
+      root.style.height = "auto";
+      root.innerHTML = '<div class="empty-state">No chores yet. Tap ⚙️ Customize above to add some.</div>';
+      lastDoneCount = done;
       return;
     }
 
-    state.tasks.forEach(function(t){
-      var card = document.createElement("div");
-      card.className = "task-card" + (t.done ? " done" : "");
-      card.setAttribute("data-task-id", t.id);
-      card.innerHTML =
-        '<div class="task-check">' + (t.done ? "✓" : "") + '</div>' +
-        '<div class="task-name">' + escapeHtml(t.name) + '</div>' +
-        (t.done ? '' : '<div class="task-go">Start →</div>');
-      if(!t.done){
-        card.addEventListener("click", function(){ openTask(t.id); });
-      }
-      list.appendChild(card);
-    });
+    renderTaskTrail(done, total);
+    lastDoneCount = done;
   }
 
   function goToTaskListOrReward(direction){
-    renderTaskList();
     var done = state.tasks.filter(function(t){ return t.done; }).length;
     var total = state.tasks.length;
     if(total > 0 && done === total){
       goToReward(direction);
     } else {
       show("tasklist", direction);
+      renderTaskList();
     }
   }
 
@@ -816,8 +901,8 @@
     state.tasks = fresh.tasks;
     state.rewards = fresh.rewards;
     saveState();
-    renderTaskList();
     show("tasklist", "forward");
+    renderTaskList();
   }
 
   // ---------- ADMIN ----------
