@@ -131,6 +131,66 @@
 
   .spooky-no{ color: var(--bone-dim); font-size: 14px; min-height: 20px; }
 
+  /* ---------- CUTSCENE ---------- */
+  .cutscene-screen{ padding:0; }
+  .cs-root{ position:absolute; inset:0; overflow:hidden; background: var(--bg); cursor:pointer; }
+
+  .cs-moon{
+    position:absolute; top:70px; right:60px; width:50px; height:50px; border-radius:50%;
+    background: radial-gradient(circle at 35% 35%, #fff7e6, #f3ead8 60%, #d8cdb8 100%);
+    box-shadow: 0 0 36px rgba(243,234,216,0.3);
+    opacity:0; animation: csFadeIn 0.8s ease forwards 0.1s;
+  }
+  @keyframes csFadeIn{ to{ opacity:1; } }
+
+  .cs-ground{ position:absolute; left:0; right:0; bottom:0; height:120px; background: linear-gradient(180deg, transparent, rgba(13,26,34,0.9)); }
+  .cs-road-line{ position:absolute; bottom:64px; left:0; width:60px; height:4px; border-radius:2px; background: rgba(243,234,216,0.35); animation: csRoadDash .55s linear infinite; }
+  @keyframes csRoadDash{ from{ transform:translateX(0);} to{ transform:translateX(-90px);} }
+
+  .cs-title{
+    position:absolute; left:0; right:0; top:38%; text-align:center;
+    opacity:0; transform: translateY(14px) scale(0.92);
+    animation: csTitleIn 0.5s cubic-bezier(.2,.8,.3,1.3) forwards 0.15s, csTitleOut 0.4s ease forwards 2.75s;
+  }
+  @keyframes csTitleIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes csTitleOut{ to{ opacity:0; transform:translateY(-10px) scale(0.96); } }
+  .cs-title h1{
+    margin:0; font-family:'Creepster', cursive; font-size: 40px; letter-spacing:0.5px;
+    color:var(--pumpkin); text-shadow: 0 0 22px rgba(255,117,24,0.55), 0 2px 0 #7a2e04;
+  }
+  .cs-title p{ margin:8px 0 0; font-size:13px; color:var(--bone-dim); font-weight:700; letter-spacing:0.04em; text-transform:uppercase; }
+
+  .cs-speed-line{ position:absolute; height:2px; background: rgba(255,208,138,0.55); border-radius:2px; right:100%; opacity:0; animation: csStreak linear infinite; }
+  @keyframes csStreak{ 0%{ right:100%; opacity:0; } 8%{ opacity:0.8; } 100%{ right:-30%; opacity:0; } }
+
+  .cs-mascot-rig{
+    position:absolute; bottom:118px; left:-160px; width:150px; height:150px;
+    animation: csRideAcross 3.4s cubic-bezier(.35,.1,.25,1) forwards 0.55s;
+  }
+  @keyframes csRideAcross{
+    0%{ left:-160px; transform: scale(0.92) rotate(-2deg); }
+    45%{ transform: scale(1.02) rotate(1deg); }
+    100%{ left:112%; transform: scale(0.9) rotate(-2deg); }
+  }
+  .cs-mascot-rig img{
+    width:100%; height:100%; object-fit:contain;
+    -webkit-mask-image: radial-gradient(circle at 50% 56%, black 52%, transparent 72%);
+    mask-image: radial-gradient(circle at 50% 56%, black 52%, transparent 72%);
+  }
+  .cs-mascot-rig::after{
+    content:""; position:absolute; left:50%; bottom:6px; width:70px; height:14px;
+    background: rgba(0,0,0,0.35); border-radius:50%; filter: blur(4px);
+    transform: translateX(-50%);
+  }
+  .cs-dust{ position:absolute; bottom:8px; left:14px; width:34px; height:14px; border-radius:50%; background: rgba(201,191,214,0.25); filter: blur(3px); animation: csDustPuff .5s ease-out infinite; }
+  @keyframes csDustPuff{ 0%{ transform: scale(0.4); opacity:0.6; } 100%{ transform: scale(1.6) translateX(-18px); opacity:0; } }
+
+  .cs-jack{ position:absolute; bottom:104px; width:22px; height:18px; opacity:0; animation: csFadeIn 0.5s ease forwards 0.2s; }
+  .cs-jack.l{ left:14%; }
+  .cs-jack.r{ right:14%; }
+
+  .cs-skip-hint{ position:absolute; bottom:18px; right:18px; font-size:11px; color:rgba(243,234,216,0.55); opacity:0; animation: csFadeIn 0.5s ease forwards 0.5s; letter-spacing:0.03em; }
+
   /* ---------- TASK LIST (trick-or-treat trail) ---------- */
   .empty-state{ text-align:center; color: var(--bone-dim); margin-top: 40px; font-size: 15px; padding: 0 20px; }
 
@@ -390,6 +450,11 @@
     <div class="spooky-no" id="spookyNo"></div>
   </section>
 
+  <!-- CUTSCENE -->
+  <section id="cutscene" class="screen cutscene-screen">
+    <div class="cs-root" id="csRoot"></div>
+  </section>
+
   <!-- TASK LIST -->
   <section id="tasklist" class="screen">
     <div class="topbar" style="justify-content:center;">
@@ -523,7 +588,7 @@
   var gone = 0;
 
   var screens = {};
-  ["splash","tasklist","taskdetail","reward","admin"].forEach(function(id){
+  ["splash","cutscene","tasklist","taskdetail","reward","admin"].forEach(function(id){
     screens[id] = document.getElementById(id);
   });
 
@@ -549,7 +614,7 @@
       stopRewardSound();
     }
 
-    document.body.classList.toggle("has-nav", id !== "splash");
+    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene");
     updateNavActive(id);
 
     // clean up any screen left mid-transition by a superseded navigation
@@ -765,6 +830,63 @@
       show("tasklist", direction);
       renderTaskList();
     }
+  }
+
+  // ---------- CUTSCENE (plays once after tapping "Yes!") ----------
+  var cutsceneTimer = null;
+  var cutsceneDone = false;
+
+  function playCutscene(){
+    var root = document.getElementById("csRoot");
+    if(!root) { goToTaskListOrReward("forward"); return; }
+    cutsceneDone = false;
+    root.innerHTML = "";
+
+    root.insertAdjacentHTML("beforeend", '<div class="cs-moon"></div>');
+
+    var jackSvg = '<svg viewBox="0 0 20 16"><path fill="#FF7518" d="M10,1 C15,1 18,5 18,9 C18,13 14,15 10,15 C6,15 2,13 2,9 C2,5 5,1 10,1 Z"/><path fill="#1a3341" d="M6,7 L8,9 L6,10 Z M14,7 L12,9 L14,10 Z M8,12 L10,10 L12,12 Z"/><rect x="8" y="-1" width="4" height="3" fill="#3a5a2f"/></svg>';
+    root.insertAdjacentHTML("beforeend", '<div class="cs-jack l">' + jackSvg + '</div>');
+    root.insertAdjacentHTML("beforeend", '<div class="cs-jack r">' + jackSvg + '</div>');
+
+    root.insertAdjacentHTML("beforeend", '<div class="cs-ground"></div>');
+    for(var i = 0; i < 3; i++){
+      var rl = document.createElement("div");
+      rl.className = "cs-road-line";
+      rl.style.bottom = (66 - i * 2) + "px";
+      rl.style.left = (i * 90) + "px";
+      root.appendChild(rl);
+    }
+
+    var total = state.tasks.length;
+    var choreWord = total === 1 ? "chore stands" : "chores stand";
+    root.insertAdjacentHTML("beforeend",
+      '<div class="cs-title"><h1>Let\'s go!</h1><p>' + total + ' ' + choreWord + ' between you and treats</p></div>'
+    );
+
+    for(var s = 0; s < 6; s++){
+      var line = document.createElement("div");
+      line.className = "cs-speed-line";
+      line.style.top = (40 + Math.random() * 40) + "%";
+      line.style.width = (30 + Math.random() * 40) + "px";
+      line.style.animationDuration = (0.5 + Math.random() * 0.4) + "s";
+      line.style.animationDelay = (0.7 + Math.random() * 2.6) + "s";
+      root.appendChild(line);
+    }
+
+    root.insertAdjacentHTML("beforeend",
+      '<div class="cs-mascot-rig"><div class="cs-dust"></div><img src="splash.gif" alt="" /></div>'
+    );
+    root.insertAdjacentHTML("beforeend", '<div class="cs-skip-hint">tap to skip</div>');
+
+    clearTimeout(cutsceneTimer);
+    cutsceneTimer = setTimeout(finishCutscene, 4700);
+  }
+
+  function finishCutscene(){
+    if(cutsceneDone) return;
+    cutsceneDone = true;
+    clearTimeout(cutsceneTimer);
+    goToTaskListOrReward("forward");
   }
 
   function escapeHtml(s){
@@ -1044,7 +1166,7 @@
       playSound("Plok.mp3");
     }
     switch(action){
-      case "splash-yes": playSound("StartGamePing.mp3"); goToTaskListOrReward("forward"); break;
+      case "splash-yes": playSound("StartGamePing.mp3"); show("cutscene", "forward"); playCutscene(); break;
       case "splash-no": splashNo(); break;
       case "open-admin": openAdmin(); break;
       case "admin-add-task": addAdminTask(); break;
@@ -1128,6 +1250,8 @@
   renderTaskList();
   updateMuteButton();
   playSplashLoop();
+
+  document.getElementById("csRoot").addEventListener("click", finishCutscene);
 
   // browsers block audio autoplay until the user has interacted with the
   // page at least once — start the splash loop for real on that first tap.
