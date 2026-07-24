@@ -814,10 +814,14 @@
   var soundMuted = false;
   try{ soundMuted = localStorage.getItem(MUTE_KEY) === "1"; }catch(e){}
 
+  var SOUND_VOLUME = 0.75;
+
   var splashLoop = new Audio("creepybells.mp3");
   splashLoop.loop = true;
+  splashLoop.volume = SOUND_VOLUME;
 
   var rewardSound = new Audio("BadWolf.mp3");
+  rewardSound.volume = SOUND_VOLUME;
 
   function updateMuteButton(){
     var btn = document.getElementById("muteToggle");
@@ -869,6 +873,7 @@
     if(soundMuted) return;
     try{
       var audio = new Audio(src);
+      audio.volume = SOUND_VOLUME;
       activeSounds.push(audio);
       audio.addEventListener("ended", function(){
         var idx = activeSounds.indexOf(audio);
