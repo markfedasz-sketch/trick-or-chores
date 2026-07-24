@@ -202,8 +202,10 @@
   .trail-canvas{ position:absolute; left:0; top:0; pointer-events:none; }
 
   .trail-start, .trail-end{ position:absolute; transform: translate(-50%,-50%); text-align:center; }
-  .trail-start{ font-size: 26px; opacity: 0.85; }
-  .trail-end .bowl{ font-size: 38px; filter: drop-shadow(0 0 14px rgba(255,208,138,0.65)); }
+  .trail-start{ font-size: 34px; opacity: 0.85; display:flex; align-items:center; justify-content:center; }
+  .trail-start svg{ width:48px; height:48px; }
+  .trail-end .bowl{ font-size: 46px; filter: drop-shadow(0 0 14px rgba(255,208,138,0.65)); display:flex; align-items:center; justify-content:center; }
+  .trail-end .bowl svg{ width:58px; height:58px; }
   .trail-end .label{
     margin-top:2px; font-size: 12px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
     color: var(--glow);
@@ -239,6 +241,18 @@
     animation: riderBob 2.2s ease-in-out infinite;
   }
   .rider.bump{ animation: riderBump .5s ease; }
+  .rider.rider-photo{ filter:none; width:46px; height:56px; }
+  .rider.rider-photo::after{
+    content:""; position:absolute; left:50%; bottom:-3px; width:60%; height:8px;
+    background: rgba(0,0,0,0.3); border-radius:50%; filter: blur(3px);
+    transform: translateX(-50%);
+  }
+  .rider-frame{
+    width:100%; height:100%; border-radius:14px; background: var(--panel);
+    border:1px solid rgba(255,255,255,0.1); box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    display:flex; align-items:center; justify-content:center; overflow:hidden; padding:4px;
+  }
+  .rider-frame img{ display:block; width:100%; height:100%; object-fit:contain; }
   @keyframes riderBob{ 0%,100%{ transform: translate(-50%,-56%);} 50%{ transform: translate(-50%,-44%);} }
   @keyframes riderBump{
     0%{ transform: translate(-50%,-50%) scale(1) rotate(0deg); }
@@ -671,6 +685,17 @@
   var TRAIL_BOTTOM = 112;
   var TRAIL_AMPLITUDE = 28;
 
+  var TRAIL_HOUSE_SVG =
+    '<svg viewBox="0 0 40 40"><path fill="#0d1c25" d="M20,4 L36,18 L33,18 L33,34 L7,34 L7,18 L4,18 Z"/>' +
+    '<rect x="16" y="23" width="4" height="5" fill="#FFD08A"/>' +
+    '<rect x="21" y="23" width="4" height="5" fill="#FFD08A"/>' +
+    '<rect x="18" y="30" width="4" height="4" fill="#FF7518"/></svg>';
+
+  var TRAIL_BOWL_SVG =
+    '<svg viewBox="0 0 40 40"><path fill="#FF7518" d="M6,20 C6,20 10,30 20,30 C30,30 34,20 34,20 Z"/>' +
+    '<ellipse cx="20" cy="20" rx="14" ry="4" fill="#C2540C"/>' +
+    '<circle cx="14" cy="17" r="3" fill="#7CFC6E"/><circle cx="22" cy="15" r="3" fill="#F3EAD8"/><circle cx="27" cy="19" r="3" fill="#FFD08A"/></svg>';
+
   function trailAmplitudeX(t){
     return Math.sin(t * Math.PI * 2.1) * TRAIL_AMPLITUDE;
   }
@@ -742,7 +767,7 @@
       startEl.className = "trail-start";
       startEl.style.left = startPt.x + "px";
       startEl.style.top = startPt.y + "px";
-      startEl.textContent = "🏚️";
+      startEl.innerHTML = TRAIL_HOUSE_SVG;
       root.appendChild(startEl);
 
       var cardMargin = 16;
@@ -779,7 +804,7 @@
       endEl.className = "trail-end";
       endEl.style.left = endPt.x + "px";
       endEl.style.top = endPt.y + "px";
-      endEl.innerHTML = '<div class="bowl">🍬</div><div class="label">Treats</div>';
+      endEl.innerHTML = '<div class="bowl">' + TRAIL_BOWL_SVG + '</div><div class="label">Treats</div>';
       root.appendChild(endEl);
 
       var riderX, riderY;
@@ -795,10 +820,15 @@
       }
       var justIncreased = lastDoneCount !== null && done > lastDoneCount;
       var rider = document.createElement("div");
-      rider.className = "rider" + (justIncreased ? " bump" : "");
+      var riderComplete = done >= total;
+      rider.className = "rider" + (justIncreased ? " bump" : "") + (riderComplete ? "" : " rider-photo");
       rider.style.left = riderX + "px";
       rider.style.top = riderY + "px";
-      rider.textContent = (done >= total) ? "🎉" : "👻";
+      if(riderComplete){
+        rider.textContent = "🎉";
+      } else {
+        rider.innerHTML = '<div class="rider-frame"><img src="jigsmall.jpg" alt="" /></div>';
+      }
       root.appendChild(rider);
     }
   }
