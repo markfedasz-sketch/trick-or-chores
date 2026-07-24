@@ -79,7 +79,7 @@
     display:flex; align-items:center; justify-content:space-between;
     margin-bottom: 10px;
   }
-  .brand{ font-family:'Creepster', cursive; font-size: 20px; color: var(--pumpkin); }
+  .brand{ font-family:'Creepster', cursive; font-size: 22px; color: var(--pumpkin); }
   .icon-btn{
     width: 40px; height:40px; border-radius: 12px; border: none;
     background: rgba(255,255,255,0.06); color: var(--bone);
@@ -134,7 +134,8 @@
   /* ---------- TASK LIST (trick-or-treat trail) ---------- */
   .empty-state{ text-align:center; color: var(--bone-dim); margin-top: 40px; font-size: 15px; padding: 0 20px; }
 
-  .progress-label{ font-size: 12px; color: var(--bone-dim); margin: 2px 0 6px; text-align:center; }
+  .tasklist-subtitle{ font-size: 14px; color: var(--bone-dim); margin: 2px 0 4px; text-align:center; font-weight:600; }
+  .progress-label{ font-size: 14px; color: var(--bone-dim); margin: 2px 0 6px; text-align:center; }
 
   .trail-scroll{ flex:1; overflow-y:auto; position:relative; }
   .trail-root{ position:relative; }
@@ -144,7 +145,7 @@
   .trail-start{ font-size: 26px; opacity: 0.85; }
   .trail-end .bowl{ font-size: 38px; filter: drop-shadow(0 0 14px rgba(255,208,138,0.65)); }
   .trail-end .label{
-    margin-top:2px; font-size: 10.5px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
+    margin-top:2px; font-size: 12px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
     color: var(--glow);
   }
 
@@ -163,14 +164,14 @@
   }
   .waypoint-card{
     position:absolute; transform: translateY(-50%); cursor:pointer;
-    background: var(--panel); border-radius: 14px; padding: 8px 12px;
+    background: var(--panel); border-radius: 999px; padding: 10px 16px;
     border: 1px solid rgba(255,255,255,0.06); width: 46%; max-width: 190px;
     display:flex; flex-direction:column; gap:2px;
   }
   .waypoint-card.done{ opacity: .55; }
-  .waypoint-name{ font-weight: 700; font-size: 14px; color: var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .waypoint-go{ font-size: 10.5px; color: var(--pumpkin); font-weight: 800; }
-  .waypoint-check{ font-size: 11px; color: var(--slime); font-weight: 800; }
+  .waypoint-name{ font-weight: 700; font-size: 16px; color: var(--bone); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .waypoint-go{ font-size: 12px; color: var(--pumpkin); font-weight: 800; }
+  .waypoint-check{ font-size: 12.5px; color: var(--slime); font-weight: 800; }
 
   .rider{
     position:absolute; transform: translate(-50%,-50%);
@@ -393,6 +394,7 @@
     <div class="topbar" style="justify-content:center;">
       <span class="brand">🎃 Trick or Chores</span>
     </div>
+    <div class="tasklist-subtitle">Finish each chore to receive your reward!</div>
     <div class="progress-label" id="progressLabel">0 of 0 done</div>
     <div class="trail-scroll" id="trailScroll">
       <div class="trail-root" id="trailRoot"></div>
