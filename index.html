@@ -109,7 +109,7 @@
   .splash-title{ font-size: 30px; line-height: 1.25; color: var(--bone); text-shadow: 0 0 18px rgba(255,117,24,0.35); }
   .splash-sub{ color: var(--bone-dim); font-size: 15px; max-width: 280px; }
 
-  .yesno{ display:flex; gap: 16px; margin-top: 6px; width: 100%; max-width: 340px; }
+  .yesno{ display:flex; justify-content:center; gap: 16px; margin-top: 6px; width: 100%; max-width: 340px; }
   .yesno .btn{ flex:1; }
   .btn{
     border: none; border-radius: 16px; padding: 18px 10px; font-weight: 800; font-size: 18px;
@@ -117,6 +117,8 @@
   }
   .btn:active{ transform: scale(0.96); }
   .btn-yes{ background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); box-shadow: 0 8px 20px rgba(255,117,24,0.35); }
+  .yesno .btn-yes{ flex-grow: 0; max-width: 200px; }
+  .yesno .btn-no{ flex-grow: 0; max-width: 200px; white-space: nowrap; }
   .btn-no{
     background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14);
     transition: top .38s cubic-bezier(.34,1.56,.64,1), left .38s cubic-bezier(.34,1.56,.64,1), transform .3s ease;
@@ -750,14 +752,48 @@
     if(spookyFinal) spookyFinal.textContent = "";
   }
 
+  var NO_DODGE_KEEPOUT_SELECTORS = [
+    ".splash-title", ".splash-sub", ".admin-corner",
+    "#btnYes", "#spookyNo", "#spookyFinal"
+  ];
+  var NO_DODGE_KEEPOUT_PAD = 10;
+  var NO_DODGE_MAX_TRIES = 30;
+
+  function rectsOverlap(a, b){
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
+
+  function getNoDodgeKeepOutRects(){
+    return NO_DODGE_KEEPOUT_SELECTORS.map(function(sel){
+      var el = document.querySelector(sel);
+      if(!el) return null;
+      var r = el.getBoundingClientRect();
+      if(r.width === 0 && r.height === 0) return null;
+      return {
+        left: r.left - NO_DODGE_KEEPOUT_PAD,
+        right: r.right + NO_DODGE_KEEPOUT_PAD,
+        top: r.top - NO_DODGE_KEEPOUT_PAD,
+        bottom: r.bottom + NO_DODGE_KEEPOUT_PAD
+      };
+    }).filter(Boolean);
+  }
+
+  // clamp range guards against measuring the button mid-layout-shift
+  // (e.g. right after its label text changes but before flex settles),
+  // which could otherwise capture a too-narrow or too-wide one-off size.
+  var NO_BTN_MIN_W = 130, NO_BTN_MAX_W = 190;
+  var NO_BTN_MIN_H = 50, NO_BTN_MAX_H = 74;
+
   function dodgeNoButton(noBtn){
     var splashEl = document.getElementById("splash");
     if(!splashEl) return;
 
     if(!noBtnSized){
       var startRect = noBtn.getBoundingClientRect();
-      noBtn.style.width = startRect.width + "px";
-      noBtn.style.height = startRect.height + "px";
+      var fixedW = Math.min(NO_BTN_MAX_W, Math.max(NO_BTN_MIN_W, startRect.width));
+      var fixedH = Math.min(NO_BTN_MAX_H, Math.max(NO_BTN_MIN_H, startRect.height));
+      noBtn.style.width = fixedW + "px";
+      noBtn.style.height = fixedH + "px";
       noBtn.classList.add("dodging");
       noBtn.style.top = startRect.top + "px";
       noBtn.style.left = startRect.left + "px";
@@ -774,19 +810,44 @@
     var padLeft = parseFloat(cs.paddingLeft) || 0;
     var padRight = parseFloat(cs.paddingRight) || 0;
 
-    var btnW = noBtn.offsetWidth;
-    var btnH = noBtn.offsetHeight;
+    var btnW = Math.min(NO_BTN_MAX_W, Math.max(NO_BTN_MIN_W, noBtn.offsetWidth));
+    var btnH = Math.min(NO_BTN_MAX_H, Math.max(NO_BTN_MIN_H, noBtn.offsetHeight));
 
     var minTop = rect.top + padTop;
     var maxTop = Math.max(minTop, rect.bottom - padBottom - btnH);
     var minLeft = rect.left + padLeft;
     var maxLeft = Math.max(minLeft, rect.right - padRight - btnW);
 
-    var newTop = minTop + Math.random() * (maxTop - minTop);
-    var newLeft = minLeft + Math.random() * (maxLeft - minLeft);
+    // keep-out rects are read fresh each tap since text (title/labels)
+    // and the button's own current spot never need excluding here.
+    var keepOutRects = getNoDodgeKeepOutRects();
 
-    noBtn.style.top = newTop + "px";
-    noBtn.style.left = newLeft + "px";
+    var bestTop = minTop, bestLeft = minLeft, bestOverlap = Infinity;
+    for(var i = 0; i < NO_DODGE_MAX_TRIES; i++){
+      var candTop = minTop + Math.random() * (maxTop - minTop);
+      var candLeft = minLeft + Math.random() * (maxLeft - minLeft);
+      var candRect = { left: candLeft, right: candLeft + btnW, top: candTop, bottom: candTop + btnH };
+
+      var overlapCount = 0;
+      for(var k = 0; k < keepOutRects.length; k++){
+        if(rectsOverlap(candRect, keepOutRects[k])) overlapCount++;
+      }
+
+      if(overlapCount === 0){
+        bestTop = candTop;
+        bestLeft = candLeft;
+        bestOverlap = 0;
+        break;
+      }
+      if(overlapCount < bestOverlap){
+        bestOverlap = overlapCount;
+        bestTop = candTop;
+        bestLeft = candLeft;
+      }
+    }
+
+    noBtn.style.top = bestTop + "px";
+    noBtn.style.left = bestLeft + "px";
   }
 
   function splashNo(){
