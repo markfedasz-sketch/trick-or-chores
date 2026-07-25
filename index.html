@@ -117,12 +117,14 @@
   }
   .btn:active{ transform: scale(0.96); }
   .btn-yes{ background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); box-shadow: 0 8px 20px rgba(255,117,24,0.35); }
-  .yesno .btn-yes{ flex-grow: 0; max-width: 200px; }
-  .yesno .btn-no{ flex-grow: 0; max-width: 200px; white-space: nowrap; }
   .btn-no{
     background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14);
+    white-space: nowrap;
     transition: top .38s cubic-bezier(.34,1.56,.64,1), left .38s cubic-bezier(.34,1.56,.64,1), transform .3s ease;
   }
+  /* Yes and No share the row evenly (same size) until No starts dodging
+     and leaves flex flow — only then does Yes stop growing to fill the gap. */
+  .yesno.no-dodging .btn-yes{ flex-grow: 0; max-width: 200px; }
   .btn-no.dodging{ position: fixed; z-index: 60; }
 
   .yesno .btn-yes{ position:relative; animation: yesBreathe 2.4s ease-in-out infinite; }
@@ -731,6 +733,7 @@
     var noBtn = document.getElementById("btnNo");
     var yesBtn = document.getElementById("btnYes");
     var splashEl = document.getElementById("splash");
+    var yesnoEl = document.querySelector(".yesno");
     if(noBtn){
       noBtn.textContent = noBtnLabels[0];
       noBtn.classList.remove("dodging");
@@ -739,6 +742,9 @@
       noBtn.style.width = "";
       noBtn.style.height = "";
       noBtn.style.transform = "";
+    }
+    if(yesnoEl){
+      yesnoEl.classList.remove("no-dodging");
     }
     if(yesBtn){
       yesBtn.style.removeProperty("--yes-scale");
@@ -795,6 +801,8 @@
       noBtn.style.width = fixedW + "px";
       noBtn.style.height = fixedH + "px";
       noBtn.classList.add("dodging");
+      var yesnoEl = document.querySelector(".yesno");
+      if(yesnoEl) yesnoEl.classList.add("no-dodging");
       noBtn.style.top = startRect.top + "px";
       noBtn.style.left = startRect.left + "px";
       // force layout so the browser registers the starting position
