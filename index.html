@@ -124,7 +124,7 @@
   }
   /* Yes and No share the row evenly (same size) until No starts dodging
      and leaves flex flow — only then does Yes stop growing to fill the gap. */
-  .yesno.no-dodging .btn-yes{ flex-grow: 0; max-width: 200px; }
+  .yesno.no-dodging .btn-yes{ flex: 0 0 200px; }
   .btn-no.dodging{ position: fixed; z-index: 60; }
 
   .yesno .btn-yes{ position:relative; animation: yesBreathe 2.4s ease-in-out infinite; }
