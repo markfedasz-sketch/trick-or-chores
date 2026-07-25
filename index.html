@@ -287,6 +287,86 @@
   .btn-half{ max-width: 160px; }
   .btn-ghost{ background: transparent; border: 2px solid rgba(255,255,255,0.14); color: var(--bone-dim); font-weight:700; padding: 14px; border-radius: 14px; }
 
+  /* ---------- optional spin-wheel teaser on the "I did it" page ---------- */
+  .wheel-teaser{
+    display:inline-flex; flex-direction:row; align-items:center; gap:8px;
+    margin-top:26px; padding:7px 14px 7px 7px; border-radius:999px;
+    background:var(--panel); border:1px dashed rgba(255,208,138,0.5);
+    cursor:pointer;
+  }
+  .wheel-teaser:active{ transform:scale(0.97); }
+  .wheel-teaser-icon{ width:26px; height:26px; flex-shrink:0; }
+  .mini-wheel{
+    width:100%; height:100%; border-radius:50%; position:relative;
+    background: conic-gradient(
+      var(--pumpkin) 0deg 45deg, var(--slime) 45deg 90deg, var(--blood) 90deg 135deg,
+      var(--glow) 135deg 180deg, var(--panel) 180deg 225deg, var(--pumpkin-dark) 225deg 270deg,
+      var(--bone) 270deg 315deg, #4A7A3A 315deg 360deg
+    );
+    box-shadow: 0 0 0 2px rgba(243,234,216,0.25), 0 2px 5px rgba(0,0,0,0.35);
+    animation: miniWheelSpin 6s linear infinite;
+  }
+  .mini-wheel::after{
+    content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:7px; height:7px; border-radius:50%; background:var(--bg); border:1.5px solid var(--bone);
+  }
+  @keyframes miniWheelSpin{ to{ transform:rotate(360deg); } }
+  .wheel-teaser-text{ font-size:12px; font-weight:800; color:var(--glow); white-space:nowrap; }
+
+  /* ---------- SPIN WHEEL SCREEN ---------- */
+  .wheel-screen{ align-items:center; justify-content:center; text-align:center; gap:14px; }
+  .wheel-eyebrow{ font-size:17px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slime); font-weight:800; }
+  .wheel-title{ font-family:'Creepster', cursive; font-size:26px; color:var(--pumpkin); margin:0; }
+  .wheel-sub{ font-size:12px; color:var(--bone-dim); max-width:260px; margin-top:-8px; }
+
+  .wheel-wrap{ position:relative; width:270px; height:270px; margin-top:4px; }
+  .wheel-pointer{
+    position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+    width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent;
+    border-top:20px solid var(--glow); z-index:4; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+  }
+  .wheel-disc{
+    width:100%; height:100%; border-radius:50%;
+    box-shadow: 0 0 0 6px var(--panel), 0 10px 30px rgba(0,0,0,0.5), 0 0 40px rgba(255,117,24,0.25);
+    transition: transform 4.2s cubic-bezier(.12,.72,.13,1);
+  }
+  .wheel-hub{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:56px; height:56px; border-radius:50%; background:var(--panel);
+    border: 3px solid var(--glow); display:flex; align-items:center; justify-content:center;
+    font-size:22px; cursor:pointer; z-index:5; box-shadow:0 4px 10px rgba(0,0,0,0.4);
+  }
+  .wheel-hub:active{ transform:translate(-50%,-50%) scale(0.93); }
+  .wheel-hub-label{
+    position:absolute; bottom:-34px; left:50%; transform:translateX(-50%);
+    font-size:12px; font-weight:800; color:#0b1216; letter-spacing:0.04em; text-transform:uppercase;
+    white-space:nowrap;
+    background: var(--glow); padding:4px 10px; border-radius:999px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  }
+
+  .fact-overlay{
+    position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    padding:28px; background:rgba(11,17,22,0.7); opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .fact-overlay.show{ opacity:1; pointer-events:auto; }
+  .fact-card{
+    background:var(--panel); border-radius:22px; padding:26px 22px; text-align:center;
+    border:1px solid rgba(124,252,110,0.25); box-shadow:0 0 30px rgba(124,252,110,0.12);
+    transform:translateY(16px) scale(0.96); opacity:0; transition: transform .3s cubic-bezier(.2,.8,.3,1.2), opacity .3s ease;
+    max-width: 300px;
+  }
+  .fact-overlay.show .fact-card{ transform:translateY(0) scale(1); opacity:1; }
+  .fact-icon{ font-size:38px; }
+  .fact-label{ font-size:12px; letter-spacing:1.2px; text-transform:uppercase; color:var(--slime); font-weight:800; margin-top:6px; }
+  .fact-text{ font-size:17px; font-weight:700; color:var(--bone); margin-top:10px; line-height:1.4; }
+  .fact-continue{
+    margin-top:18px; width:100%; border:none; border-radius:999px; padding:13px;
+    background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); color:var(--bg);
+    font-weight:800; font-size:15px; cursor:pointer;
+  }
+  .fact-continue:active{ transform:scale(0.97); }
+
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
   #reward h2{ font-size: 34px; }
@@ -517,6 +597,34 @@
     <h2 id="taskDetailName">Task</h2>
     <p class="task-hint" id="taskDetailHint">Do the chore, then come back and check it off.</p>
     <button class="btn btn-yes btn-wide btn-half" data-action="task-done">I did it!</button>
+
+    <div class="wheel-teaser" data-action="open-wheel">
+      <div class="wheel-teaser-icon"><div class="mini-wheel"></div></div>
+      <div class="wheel-teaser-text">Spin for a fun Halloween fact?</div>
+    </div>
+  </section>
+
+  <!-- SPIN WHEEL -->
+  <section id="wheel" class="screen wheel-screen">
+    <div class="wheel-eyebrow">Nice work!</div>
+    <h2 class="wheel-title">Spin for a spooky fact</h2>
+    <p class="wheel-sub">Give it a spin while your chore gets checked off.</p>
+    <div class="wheel-wrap">
+      <div class="wheel-pointer"></div>
+      <canvas class="wheel-disc" id="wheelCanvas" width="540" height="540"></canvas>
+      <div class="wheel-hub" id="wheelHub" data-action="spin-wheel">🎃
+        <div class="wheel-hub-label">Tap to spin</div>
+      </div>
+    </div>
+
+    <div class="fact-overlay" id="factOverlay">
+      <div class="fact-card">
+        <div class="fact-icon" id="factIcon">🦇</div>
+        <div class="fact-label">Did you know?</div>
+        <div class="fact-text" id="factText">Fact goes here.</div>
+        <button class="fact-continue" data-action="wheel-continue">Sweet! Continue →</button>
+      </div>
+    </div>
   </section>
 
   <!-- REWARD -->
@@ -640,7 +748,7 @@
   var gone = 0;
 
   var screens = {};
-  ["splash","cutscene","tasklist","taskdetail","reward","admin"].forEach(function(id){
+  ["splash","cutscene","tasklist","taskdetail","wheel","reward","admin"].forEach(function(id){
     screens[id] = document.getElementById(id);
   });
 
@@ -667,7 +775,7 @@
       stopRewardSound();
     }
 
-    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene");
+    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel");
     updateNavActive(id);
 
     // clean up any screen left mid-transition by a superseded navigation
@@ -1177,6 +1285,150 @@
     goToTaskListOrReward("forward");
   }
 
+  // ---------- SPIN WHEEL (optional mini-game on the task detail page) ----------
+  var wheelTopics = [
+    { icon: "🎃", facts: [
+      "Jack-o'-lanterns were first carved from turnips and potatoes in Ireland, long before pumpkins caught on.",
+      "The world's heaviest pumpkin on record weighed over 2,700 pounds — as much as a small car!",
+      "Pumpkins are technically a fruit, since they grow from a flower and contain seeds.",
+      "The tradition of carving faces into vegetables comes from an old Irish tale about a trickster named \"Stingy Jack.\"",
+      "Pumpkins are over 90% water, which is why carved ones shrivel up so fast.",
+      "The U.S. grows over 1.5 billion pounds of pumpkins every year."
+    ]},
+    { icon: "🕯️", facts: [
+      "\"Halloween\" is short for \"All Hallows' Eve\" — the night before All Saints' Day.",
+      "Halloween is celebrated on October 31st because that's when the old Celtic year was believed to end.",
+      "Ireland is considered the birthplace of Halloween as we know it today.",
+      "Halloween became popular in America thanks to Irish immigrants who brought their traditions in the 1800s.",
+      "Some towns hold Halloween parades bigger than their New Year's celebrations.",
+      "October is named for the Latin word \"octo,\" meaning eight — it used to be the eighth month on the old calendar."
+    ]},
+    { icon: "🍬", facts: [
+      "Trick-or-treating grew out of a medieval tradition called \"souling,\" where people traded prayers for food.",
+      "Candy corn was originally called \"Chicken Feed\" when it was invented in the 1880s.",
+      "Americans spend billions of dollars on Halloween candy every single year.",
+      "The world's largest candy corn sculpture stood taller than a house.",
+      "Chocolate is the most popular Halloween candy in the United States.",
+      "Some neighborhoods now use teal pumpkins to signal they offer non-food treats for allergies."
+    ]},
+    { icon: "🦉", facts: [
+      "Owls became a Halloween symbol because people once believed their hoots could predict death.",
+      "A group of owls is called a \"parliament.\"",
+      "Owls can rotate their heads up to 270 degrees — but they can't move their eyes at all.",
+      "In medieval Europe, hearing an owl was thought to be a sign a witch was nearby.",
+      "Owls fly almost silently thanks to the special shape of their feathers.",
+      "The tiniest owl species is about the size of a soda can."
+    ]},
+    { icon: "🧙", facts: [
+      "The word \"witch\" comes from the Old English \"wicce,\" meaning a wise or cunning woman.",
+      "The classic witch's hat may have come from old stereotypes about healers and herbalists.",
+      "Broomsticks became linked to witches thanks to old folk tales about flying to secret gatherings.",
+      "The Salem witch trials of 1692 remain one of the most famous events in American history.",
+      "Black cauldrons were once ordinary cooking pots, not just witch's tools.",
+      "Green skin for witches became popular mostly because of movies, not old folklore."
+    ]},
+    { icon: "🦇", facts: [
+      "Bats aren't just spooky — a single bat can eat over 1,000 mosquitoes in one hour!",
+      "Bats are the only mammals capable of true, sustained flight.",
+      "Some bats can live over 30 years in the wild.",
+      "Bats use echolocation, sending out sounds and listening for echoes to \"see\" in the dark.",
+      "There are over 1,400 species of bats found all over the world.",
+      "Vampire bats share food with hungry roost-mates — they're surprisingly generous!",
+      "Baby bats are called \"pups,\" just like baby dogs."
+    ]},
+    { icon: "🐈‍⬛", facts: [
+      "Black cats are considered unlucky in some countries — but a sign of good fortune in others, like Japan.",
+      "In the United Kingdom, a black cat crossing your path is actually considered lucky.",
+      "Ancient Egyptians revered cats of all colors, including black ones, as sacred animals.",
+      "Black cats often get adopted less than other cats — many shelters run special \"black cat\" adoption events.",
+      "A black cat's fur can sometimes look almost blue or brown in bright sunlight.",
+      "Black cats appear in folklore worldwide, from witches' companions to symbols of protection."
+    ]},
+    { icon: "🔥", facts: [
+      "Halloween traces back to Samhain, an ancient Celtic festival marking the end of harvest season.",
+      "Samhain bonfires were once believed to help ward off evil spirits crossing into our world.",
+      "Ancient Celts thought the boundary between the living and spirit worlds was thinnest on Samhain night.",
+      "People used to wear costumes during Samhain to disguise themselves from wandering spirits.",
+      "Samhain marked the Celtic new year, celebrating the transition from harvest to winter.",
+      "Many modern Halloween traditions, like dressing in costume, trace directly back to Samhain customs.",
+      "Bonfires were originally called \"bone fires,\" since old bones were sometimes burned in them."
+    ]}
+  ];
+
+  var wheelColors = ["#FF7518", "#7CFC6E", "#C43A31", "#FFD08A", "#315A6E", "#C2540C", "#F3EAD8", "#4A7A3A"];
+  var wheelSegAngle = (Math.PI * 2) / wheelTopics.length;
+  var wheelRotation = 0;
+  var wheelSpinning = false;
+
+  function drawWheel(){
+    var canvas = document.getElementById("wheelCanvas");
+    if(!canvas) return;
+    var ctx = canvas.getContext("2d");
+    var cx = canvas.width / 2, cy = canvas.height / 2, r = canvas.width / 2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    wheelTopics.forEach(function(topic, i){
+      var start = i * wheelSegAngle - Math.PI / 2;
+      var end = start + wheelSegAngle;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, start, end);
+      ctx.closePath();
+      ctx.fillStyle = wheelColors[i % wheelColors.length];
+      ctx.fill();
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(start + wheelSegAngle / 2);
+      ctx.font = "54px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(topic.icon, r * 0.62, 0);
+      ctx.restore();
+    });
+  }
+
+  function openWheel(){
+    drawWheel();
+    show("wheel", "forward");
+  }
+
+  function spinWheel(){
+    if(wheelSpinning) return;
+    wheelSpinning = true;
+    var hub = document.getElementById("wheelHub");
+    hub.style.pointerEvents = "none";
+
+    var winnerIndex = Math.floor(Math.random() * wheelTopics.length);
+    var winnerMidAngleDeg = (winnerIndex * wheelSegAngle + wheelSegAngle / 2) * (180 / Math.PI);
+    var extraSpins = 5;
+    var target = extraSpins * 360 + (360 - winnerMidAngleDeg);
+    wheelRotation += target;
+
+    var canvas = document.getElementById("wheelCanvas");
+    canvas.style.transform = "rotate(" + wheelRotation + "deg)";
+
+    setTimeout(function(){
+      wheelSpinning = false;
+      hub.style.pointerEvents = "auto";
+      showWheelFact(winnerIndex);
+    }, 4300);
+  }
+
+  function showWheelFact(i){
+    var topic = wheelTopics[i];
+    var text = topic.facts[Math.floor(Math.random() * topic.facts.length)];
+    document.getElementById("factIcon").textContent = topic.icon;
+    document.getElementById("factText").textContent = text;
+    document.getElementById("factOverlay").classList.add("show");
+    spawnConfetti(24);
+  }
+
+  function closeWheelFact(){
+    document.getElementById("factOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
   // ---------- REWARD ----------
   function goToReward(direction){
     var reward = state.rewards && state.rewards.length
@@ -1520,6 +1772,9 @@
       case "admin-add-reward": addAdminReward(); break;
       case "admin-save": saveAdmin(); break;
       case "task-done": spawnConfetti(24); completeActiveTask(); break;
+      case "open-wheel": openWheel(); break;
+      case "spin-wheel": spinWheel(); break;
+      case "wheel-continue": closeWheelFact(); break;
       case "toggle-mute": toggleMute(); break;
       case "nav-home": activeTaskId = null; show("splash", "back"); break;
       case "nav-chores": activeTaskId = null; show("tasklist", "back"); break;
