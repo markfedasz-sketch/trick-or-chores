@@ -117,7 +117,11 @@
   }
   .btn:active{ transform: scale(0.96); }
   .btn-yes{ background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); box-shadow: 0 8px 20px rgba(255,117,24,0.35); }
-  .btn-no{ background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14); }
+  .btn-no{
+    background: transparent; color: var(--bone-dim); border: 2px solid rgba(255,255,255,0.14);
+    transition: top .38s cubic-bezier(.34,1.56,.64,1), left .38s cubic-bezier(.34,1.56,.64,1), transform .3s ease;
+  }
+  .btn-no.dodging{ position: fixed; z-index: 60; }
 
   .yesno .btn-yes{ position:relative; animation: yesBreathe 2.4s ease-in-out infinite; }
   .yesno .btn-yes::before{
@@ -126,10 +130,20 @@
     filter: blur(10px); z-index:-1;
     animation: yesGlow 2.4s ease-in-out infinite;
   }
-  @keyframes yesBreathe{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.045); } }
+  @keyframes yesBreathe{ 0%,100%{ transform: scale(var(--yes-scale, 1)); } 50%{ transform: scale(calc(var(--yes-scale, 1) * 1.045)); } }
   @keyframes yesGlow{ 0%,100%{ opacity:0.5; transform: scale(0.92); } 50%{ opacity:0.9; transform: scale(1.08); } }
 
   .spooky-no{ color: var(--bone-dim); font-size: 14px; min-height: 20px; }
+  .spooky-final{ color: var(--pumpkin); font-size: 16px; font-weight: 800; min-height: 20px; }
+
+  @keyframes splashShake{
+    0%, 100%{ margin-left: 0; }
+    20%{ margin-left: -8px; }
+    40%{ margin-left: 7px; }
+    60%{ margin-left: -5px; }
+    80%{ margin-left: 4px; }
+  }
+  #splash.shake{ animation: splashShake .35s ease; }
 
   /* ---------- CUTSCENE ---------- */
   .cutscene-screen{ padding:0; }
@@ -469,10 +483,11 @@
     <h1 class="splash-title">Do you want<br/>to play a game?</h1>
     <p class="splash-sub">Finish your spooky chores tonight and something sweet is waiting for you...</p>
     <div class="yesno">
-      <button class="btn btn-no" data-action="splash-no">No thanks</button>
-      <button class="btn btn-yes" data-action="splash-yes">Yes!</button>
+      <button class="btn btn-no" id="btnNo" data-action="splash-no">No thanks</button>
+      <button class="btn btn-yes" id="btnYes" data-action="splash-yes">Yes!</button>
     </div>
     <div class="spooky-no" id="spookyNo"></div>
+    <div class="spooky-final" id="spookyFinal"></div>
   </section>
 
   <!-- CUTSCENE -->
@@ -639,6 +654,7 @@
 
     if(id === "splash"){
       playSplashLoop();
+      resetSplashNo();
     } else if(fromId === "splash"){
       stopSplashLoop();
     }
@@ -690,10 +706,131 @@
     "Try again, mortal.",
     "The candy is watching."
   ];
+
+  var noBtnLabels = ["No thanks", "Really?", "Are you sure??", "The pumpkin is sad", "Fine... one more chance"];
+  var NO_TAP_LIMIT = 5;
+  var NO_SCALE_FLOOR = 0.6;
+  var NO_SCALE_STEP = 0.1;
+  var YES_SCALE_CAP = 1.3;
+  var YES_SCALE_STEP = 0.06;
+
+  var noTapCount = 0;
+  var noSequenceLocked = false;
+  var noAutoAdvanceTimer = null;
+  var noBtnSized = false;
+
+  function resetSplashNo(){
+    clearTimeout(noAutoAdvanceTimer);
+    noTapCount = 0;
+    gone = 0;
+    noSequenceLocked = false;
+    noBtnSized = false;
+
+    var noBtn = document.getElementById("btnNo");
+    var yesBtn = document.getElementById("btnYes");
+    var splashEl = document.getElementById("splash");
+    if(noBtn){
+      noBtn.textContent = noBtnLabels[0];
+      noBtn.classList.remove("dodging");
+      noBtn.style.top = "";
+      noBtn.style.left = "";
+      noBtn.style.width = "";
+      noBtn.style.height = "";
+      noBtn.style.transform = "";
+    }
+    if(yesBtn){
+      yesBtn.style.removeProperty("--yes-scale");
+    }
+    if(splashEl){
+      splashEl.classList.remove("shake");
+    }
+    var spookyNo = document.getElementById("spookyNo");
+    var spookyFinal = document.getElementById("spookyFinal");
+    if(spookyNo) spookyNo.textContent = "";
+    if(spookyFinal) spookyFinal.textContent = "";
+  }
+
+  function dodgeNoButton(noBtn){
+    var splashEl = document.getElementById("splash");
+    if(!splashEl) return;
+
+    if(!noBtnSized){
+      var startRect = noBtn.getBoundingClientRect();
+      noBtn.style.width = startRect.width + "px";
+      noBtn.style.height = startRect.height + "px";
+      noBtn.classList.add("dodging");
+      noBtn.style.top = startRect.top + "px";
+      noBtn.style.left = startRect.left + "px";
+      // force layout so the browser registers the starting position
+      // before we animate to the random one below.
+      noBtn.getBoundingClientRect();
+      noBtnSized = true;
+    }
+
+    var rect = splashEl.getBoundingClientRect();
+    var cs = getComputedStyle(splashEl);
+    var padTop = parseFloat(cs.paddingTop) || 0;
+    var padBottom = parseFloat(cs.paddingBottom) || 0;
+    var padLeft = parseFloat(cs.paddingLeft) || 0;
+    var padRight = parseFloat(cs.paddingRight) || 0;
+
+    var btnW = noBtn.offsetWidth;
+    var btnH = noBtn.offsetHeight;
+
+    var minTop = rect.top + padTop;
+    var maxTop = Math.max(minTop, rect.bottom - padBottom - btnH);
+    var minLeft = rect.left + padLeft;
+    var maxLeft = Math.max(minLeft, rect.right - padRight - btnW);
+
+    var newTop = minTop + Math.random() * (maxTop - minTop);
+    var newLeft = minLeft + Math.random() * (maxLeft - minLeft);
+
+    noBtn.style.top = newTop + "px";
+    noBtn.style.left = newLeft + "px";
+  }
+
   function splashNo(){
+    if(noSequenceLocked) return;
+    playSound("laugh.mp3");
+
+    var splashEl = document.getElementById("splash");
+    var noBtn = document.getElementById("btnNo");
+    var yesBtn = document.getElementById("btnYes");
+
+    if(splashEl){
+      splashEl.classList.remove("shake");
+      void splashEl.offsetWidth;
+      splashEl.classList.add("shake");
+      setTimeout(function(){ splashEl.classList.remove("shake"); }, 400);
+    }
+
     document.getElementById("spookyNo").textContent = noMessages[gone % noMessages.length];
     gone++;
-    playSound("laugh.mp3");
+    noTapCount++;
+
+    if(noTapCount >= NO_TAP_LIMIT){
+      noSequenceLocked = true;
+      if(noBtn) noBtn.textContent = noBtnLabels[noBtnLabels.length - 1];
+      var spookyFinal = document.getElementById("spookyFinal");
+      if(spookyFinal) spookyFinal.textContent = "The pumpkins have decided for you...";
+      noAutoAdvanceTimer = setTimeout(function(){
+        playSound("StartGamePing.mp3");
+        show("cutscene", "forward");
+        playCutscene();
+      }, 1000);
+      return;
+    }
+
+    if(noBtn){
+      noBtn.textContent = noBtnLabels[Math.min(noTapCount, noBtnLabels.length - 1)];
+      var noScale = Math.max(NO_SCALE_FLOOR, 1 - noTapCount * NO_SCALE_STEP);
+      dodgeNoButton(noBtn);
+      noBtn.style.transform = "scale(" + noScale + ")";
+    }
+    if(yesBtn){
+      var yesScale = Math.min(YES_SCALE_CAP, 1 + noTapCount * YES_SCALE_STEP);
+      yesBtn.style.setProperty("--yes-scale", yesScale);
+    }
   }
 
   // ---------- TASK LIST (trick-or-treat trail) ----------
