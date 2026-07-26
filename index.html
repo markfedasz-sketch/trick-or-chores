@@ -1128,8 +1128,8 @@
           '<span class="waypoint-name">' + escapeHtml(t.name) + '</span>' +
           (isDone ? '<span class="waypoint-check">✓</span>' : '<span class="waypoint-go">Start →</span>');
         if(!isDone){
-          card.addEventListener("click", function(){ openTask(t.id); });
-          dot.addEventListener("click", function(){ openTask(t.id); });
+          card.addEventListener("click", function(){ playSound("Plok.mp3"); openTask(t.id); });
+          dot.addEventListener("click", function(){ playSound("Plok.mp3"); openTask(t.id); });
         }
         root.appendChild(card);
       });
