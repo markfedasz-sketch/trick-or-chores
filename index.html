@@ -314,6 +314,16 @@
   @keyframes miniWheelSpin{ to{ transform:rotate(360deg); } }
   .ghost-teaser-icon{ width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:34px; line-height:1; }
 
+  /* ---------- mid-game "skip" exit (ghost icon, top-right of a mini-game screen) ---------- */
+  .mini-skip-btn{
+    position:absolute; top: calc(var(--safe-top) + 14px); right: 4px; z-index:15;
+    width:40px; height:40px; border-radius:12px; border:none;
+    background: rgba(255,255,255,0.06); color: var(--bone);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 26px; line-height:1; cursor:pointer;
+  }
+  .mini-skip-btn:active{ transform: scale(0.94); }
+
   /* ---------- SPIN WHEEL SCREEN ---------- */
   .wheel-screen{ align-items:center; justify-content:center; text-align:center; gap:14px; }
   .wheel-eyebrow{ font-size:17px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slime); font-weight:800; }
@@ -708,6 +718,7 @@
 
   <!-- SPIN WHEEL -->
   <section id="wheel" class="screen wheel-screen">
+    <button class="mini-skip-btn" data-action="exit-wheel" aria-label="Skip this mini-game and continue">👻</button>
     <div class="wheel-eyebrow">Nice work!</div>
     <h2 class="wheel-title">Spin for a spooky fact</h2>
     <p class="wheel-sub">Give it a spin while your chore gets checked off.</p>
@@ -731,6 +742,7 @@
 
   <!-- PUMPKIN CATCH -->
   <section id="catchgame" class="screen catch-screen">
+    <button class="mini-skip-btn" data-action="exit-catch" aria-label="Skip this mini-game and continue">👻</button>
     <div class="wheel-eyebrow">Nice work!</div>
     <h2 class="wheel-title">Catch the pumpkins</h2>
     <p class="wheel-sub">Drag to move the basket. Catch 80% to win the round.</p>
@@ -1593,6 +1605,13 @@
     completeActiveTask();
   }
 
+  function exitWheelGame(){
+    clearTimeout(wheelFactTimer);
+    wheelSpinning = false;
+    document.getElementById("factOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
   // ---------- PUMPKIN CATCH ----------
   var CATCH_TOTAL = 50;
   var CATCH_WIN_THRESHOLD = 0.8;
@@ -1807,6 +1826,15 @@
   }
 
   function closeCatchGame(){
+    document.getElementById("catchEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
+  function exitCatchGame(){
+    catchRunning = false;
+    clearTimeout(catchSpawnTimer);
+    cancelAnimationFrame(catchRafId);
+    document.getElementById("catchStartOverlay").classList.remove("show");
     document.getElementById("catchEndOverlay").classList.remove("show");
     completeActiveTask();
   }
@@ -2163,6 +2191,8 @@
       case "catch-start": startCatchGame(); break;
       case "catch-continue": closeCatchGame(); break;
       case "skip-games": completeActiveTask(); break;
+      case "exit-wheel": exitWheelGame(); break;
+      case "exit-catch": exitCatchGame(); break;
       case "toggle-mute": toggleMute(); break;
       case "nav-home": activeTaskId = null; show("splash", "back"); break;
       case "nav-chores": activeTaskId = null; show("tasklist", "back"); break;
