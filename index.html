@@ -314,13 +314,13 @@
   @keyframes miniWheelSpin{ to{ transform:rotate(360deg); } }
   .ghost-teaser-icon{ width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:34px; line-height:1; }
 
-  /* ---------- mid-game "skip" exit (ghost icon, top-right of a mini-game screen) ---------- */
+  /* ---------- mid-game "back" exit (top-left of a mini-game screen) ---------- */
   .mini-skip-btn{
-    position:absolute; top: calc(var(--safe-top) + 14px); right: 4px; z-index:15;
+    position:absolute; top: calc(var(--safe-top) + 14px); left: 4px; z-index:15;
     width:40px; height:40px; border-radius:12px; border:none;
     background: rgba(255,255,255,0.06); color: var(--bone);
     display:flex; align-items:center; justify-content:center;
-    font-size: 26px; line-height:1; cursor:pointer;
+    font-size: 20px; line-height:1; cursor:pointer;
   }
   .mini-skip-btn:active{ transform: scale(0.94); }
 
@@ -718,7 +718,7 @@
 
   <!-- SPIN WHEEL -->
   <section id="wheel" class="screen wheel-screen">
-    <button class="mini-skip-btn" data-action="exit-wheel" aria-label="Skip this mini-game and continue">👻</button>
+    <button class="mini-skip-btn" data-action="exit-wheel" aria-label="Go back and continue with chores">⬅️</button>
     <div class="wheel-eyebrow">Nice work!</div>
     <h2 class="wheel-title">Spin for a spooky fact</h2>
     <p class="wheel-sub">Give it a spin while your chore gets checked off.</p>
@@ -742,7 +742,7 @@
 
   <!-- PUMPKIN CATCH -->
   <section id="catchgame" class="screen catch-screen">
-    <button class="mini-skip-btn" data-action="exit-catch" aria-label="Skip this mini-game and continue">👻</button>
+    <button class="mini-skip-btn" data-action="exit-catch" aria-label="Go back and continue with chores">⬅️</button>
     <div class="wheel-eyebrow">Nice work!</div>
     <h2 class="wheel-title">Catch the pumpkins</h2>
     <p class="wheel-sub">Drag to move the basket. Catch 80% to win the round.</p>
