@@ -516,6 +516,10 @@
     100%{ transform: translateY(-24px) scale(1); opacity:0; }
   }
   .beat-countdown-num{ font-size:52px; font-weight:800; color:var(--glow); text-shadow:0 0 26px rgba(255,208,138,0.6); }
+  /* Early notes are already falling behind this overlay during the countdown (see BEAT_PREROLL) —
+     keep it barely tinted, with no solid card behind the number, so they stay easy to see. */
+  #beatCountdownOverlay{ background: rgba(11,17,22,0.12); }
+  #beatCountdownOverlay .fact-card{ background: transparent; border: none; box-shadow: none; }
   .beat-grade-badge{
     width:56px; height:56px; border-radius:50%; margin:6px auto 0; display:flex; align-items:center; justify-content:center;
     font-size:24px; font-weight:800; color:var(--bg);
@@ -2100,8 +2104,18 @@
   var beatLaneEls = null;
   var beatHitLineEl = null;
   var beatGameClockStart = 0;
+  var beatUsingRealClock = false;
+
+  // Before real playback starts we predict song position from the countdown's own clock.
+  // The instant the audio element actually starts producing sound (the "playing" event —
+  // which absorbs any play() startup latency the predicted clock can't know about), we
+  // switch to beatAudio.currentTime as ground truth so notes don't drift ahead of the music.
+  beatAudio.addEventListener("playing", function(){
+    beatUsingRealClock = true;
+  });
 
   function beatNow(){
+    if(beatUsingRealClock) return beatAudio.currentTime;
     return (performance.now() - beatGameClockStart) / 1000 - BEAT_PREROLL;
   }
 
@@ -2262,6 +2276,7 @@
     // audio actually starts, so they still arrive on their real beat.
     beatResetChart();
     beatGameClockStart = performance.now();
+    beatUsingRealClock = false;
     beatRunning = true;
     beatRafId = requestAnimationFrame(beatTick);
 
