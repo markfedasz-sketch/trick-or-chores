@@ -442,6 +442,91 @@
   .catch-stat b{ font-size:20px; color:var(--bone); font-variant-numeric: tabular-nums; }
   .catch-stat span{ font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--bone-dim); }
 
+  .beat-teaser{ border-color: rgba(156,143,224,0.5); }
+  .beat-teaser-icon{ width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:26px; line-height:1; }
+
+  /* ---------- PUMPKIN BEAT (rhythm) SCREEN ---------- */
+  .beat-screen{ align-items:stretch; justify-content:flex-start; text-align:center; gap:10px; }
+  .beat-screen .wheel-title{ font-size:22px; }
+  .beat-stage{
+    position:relative; flex:1; min-height:0; margin: 4px -18px 0; overflow:hidden;
+    background: linear-gradient(180deg, #0d0e1a 0%, #171226 40%, #201331 75%, #2a1638 100%);
+    border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .beat-star{ position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; opacity:0.7; animation: catchTwinkle 2.6s ease-in-out infinite; }
+  .beat-moon{ position:absolute; top:10px; right:14px; width:22px; height:22px; border-radius:50%; background:#FFEFC2; box-shadow:0 0 16px rgba(255,239,194,0.5); }
+
+  .beat-hud{
+    position:absolute; top:8px; left:8px; right:8px; z-index:10;
+    display:flex; align-items:flex-start; justify-content:center; gap:10px;
+  }
+  .beat-hud-pill{
+    background:rgba(10,10,20,0.55); border:1px solid rgba(255,255,255,0.14); color:#fff;
+    font-size:11px; font-weight:800; padding:5px 12px; border-radius:999px;
+    display:flex; flex-direction:column; align-items:center; gap:0; font-variant-numeric: tabular-nums; min-width:52px;
+  }
+  .beat-hud-pill span.lbl{ font-size:8px; letter-spacing:.06em; text-transform:uppercase; color:#a9adba; font-weight:700; }
+  .beat-hud-pill span.val{ font-size:15px; }
+  .beat-hud-pill.pulse{ animation: beatComboPulse .3s ease; }
+  @keyframes beatComboPulse{ 0%{ transform:scale(1);} 40%{ transform:scale(1.22); } 100%{ transform:scale(1);} }
+
+  .beat-lanes{
+    position:absolute; top:44px; bottom:14px; left:8px; right:8px; z-index:3;
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:6px;
+  }
+  .beat-lane{
+    position:relative; border-radius:14px; overflow:hidden; cursor:pointer;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.05));
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .beat-lane[data-lane="0"]{ --lane-accent: #9C8FE0; }
+  .beat-lane[data-lane="1"]{ --lane-accent: var(--pumpkin); }
+  .beat-lane[data-lane="2"]{ --lane-accent: var(--glow); }
+  .beat-lane::after{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:40px;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--lane-accent) 22%, transparent));
+    pointer-events:none;
+  }
+  .beat-lane.tapped{ background: linear-gradient(180deg, rgba(255,255,255,0.02), color-mix(in srgb, var(--lane-accent) 30%, transparent)); }
+  .beat-lane-label{
+    position:absolute; left:0; right:0; bottom:6px; text-align:center; font-size:19px; z-index:2; pointer-events:none;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+  }
+  .beat-note{
+    position:absolute; left:50%; top:-30px; width:28px; height:28px; margin-left:-14px;
+    display:flex; align-items:center; justify-content:center; font-size:21px; z-index:4;
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4)); pointer-events:none;
+  }
+  .beat-hit-line{
+    position:absolute; left:8px; right:8px; bottom:14px; height:3px; z-index:6; pointer-events:none;
+    background: linear-gradient(90deg, transparent, var(--glow), transparent);
+    box-shadow: 0 0 8px 1px rgba(255,208,138,0.5);
+  }
+  .beat-hit-line.beat{ box-shadow: 0 0 18px 4px rgba(255,208,138,0.9); }
+  .beat-judgment{
+    position:absolute; bottom:28px; left:0; width:100%; text-align:center; z-index:12; pointer-events:none;
+    font-weight:800; font-size:14px; letter-spacing:.02em; animation: beatJudgPop .5s ease forwards;
+  }
+  .beat-judgment.perfect{ color: var(--slime); }
+  .beat-judgment.good{ color: var(--glow); }
+  .beat-judgment.miss{ color: var(--blood); }
+  @keyframes beatJudgPop{
+    0%{ transform: translateY(6px) scale(0.8); opacity:0; }
+    25%{ transform: translateY(-2px) scale(1.08); opacity:1; }
+    100%{ transform: translateY(-24px) scale(1); opacity:0; }
+  }
+  .beat-countdown-num{ font-size:52px; font-weight:800; color:var(--glow); text-shadow:0 0 26px rgba(255,208,138,0.6); }
+  .beat-grade-badge{
+    width:56px; height:56px; border-radius:50%; margin:6px auto 0; display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:800; color:var(--bg);
+    background: conic-gradient(var(--glow), var(--pumpkin));
+    box-shadow: 0 6px 16px rgba(255,117,24,0.35);
+  }
+  .beat-stat-row{ display:flex; justify-content:center; gap:16px; margin-top:12px; }
+  .beat-stat{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .beat-stat b{ font-size:18px; color:var(--bone); font-variant-numeric: tabular-nums; }
+  .beat-stat span{ font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--bone-dim); }
+
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
   #reward h2{ font-size: 34px; }
@@ -710,6 +795,9 @@
       <div class="catch-teaser" data-action="open-catch" aria-label="Catch falling pumpkins">
         <div class="catch-teaser-icon">🎃</div>
       </div>
+      <div class="beat-teaser" data-action="open-beat" aria-label="Tap to the beat mini-game">
+        <div class="beat-teaser-icon">🥁</div>
+      </div>
       <div class="ghost-teaser" data-action="skip-games" aria-label="Skip mini-games and finish chore">
         <div class="ghost-teaser-icon">👻</div>
       </div>
@@ -785,6 +873,61 @@
           </div>
           <div class="fact-text" id="catchEndSub" style="font-size:13px;">You caught 0 out of 50 pumpkins.</div>
           <button class="fact-continue" data-action="catch-continue">Continue →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUMPKIN BEAT (rhythm) -->
+  <section id="beatgame" class="screen beat-screen">
+    <button class="mini-skip-btn" data-action="exit-beat" aria-label="Go back and continue with chores">⬅️</button>
+    <div class="wheel-eyebrow">Nice work!</div>
+    <h2 class="wheel-title">Tap to the beat</h2>
+    <p class="wheel-sub">Tap each lane the moment its icon lines up with the glowing line.</p>
+
+    <div class="beat-stage" id="beatStage">
+      <div class="beat-moon"></div>
+      <div id="beatStarLayer"></div>
+
+      <div class="beat-hud">
+        <div class="beat-hud-pill"><span class="lbl">Score</span><span class="val" id="beatScoreVal">0</span></div>
+        <div class="beat-hud-pill" id="beatComboPill"><span class="lbl">Combo</span><span class="val" id="beatComboVal">0</span></div>
+      </div>
+
+      <div class="beat-lanes" id="beatLanes">
+        <div class="beat-lane" data-lane="0"><div class="beat-lane-label">🦇</div></div>
+        <div class="beat-lane" data-lane="1"><div class="beat-lane-label">🎃</div></div>
+        <div class="beat-lane" data-lane="2"><div class="beat-lane-label">👻</div></div>
+      </div>
+
+      <div class="beat-hit-line" id="beatHitLine"></div>
+
+      <div class="fact-overlay show" id="beatStartOverlay">
+        <div class="fact-card">
+          <div class="fact-icon">🥁</div>
+          <div class="fact-label">Mini-Game</div>
+          <div class="fact-text">Tap each lane the moment its icon lines up with the glowing line. Nail the timing for a Perfect!</div>
+          <button class="fact-continue" data-action="beat-start">Start Song</button>
+        </div>
+      </div>
+
+      <div class="fact-overlay" id="beatCountdownOverlay">
+        <div class="fact-card">
+          <div class="beat-countdown-num" id="beatCountdownNum">3</div>
+        </div>
+      </div>
+
+      <div class="fact-overlay" id="beatEndOverlay">
+        <div class="fact-card">
+          <div class="fact-label" id="beatEndTitle">Song Complete</div>
+          <div class="beat-grade-badge" id="beatGradeBadge">A</div>
+          <div class="beat-stat-row">
+            <div class="beat-stat"><b id="beatStatScore">0</b><span>Score</span></div>
+            <div class="beat-stat"><b id="beatStatAcc">0%</b><span>Accuracy</span></div>
+            <div class="beat-stat"><b id="beatStatCombo">0</b><span>Best Combo</span></div>
+          </div>
+          <div class="fact-text" id="beatEndSub" style="font-size:13px;">Perfect 0 · Good 0 · Miss 0</div>
+          <button class="fact-continue" data-action="beat-continue">Continue →</button>
         </div>
       </div>
     </div>
@@ -922,7 +1065,7 @@
   var gone = 0;
 
   var screens = {};
-  ["splash","cutscene","tasklist","taskdetail","wheel","catchgame","reward","admin"].forEach(function(id){
+  ["splash","cutscene","tasklist","taskdetail","wheel","catchgame","beatgame","reward","admin"].forEach(function(id){
     screens[id] = document.getElementById(id);
   });
 
@@ -949,7 +1092,11 @@
       stopRewardSound();
     }
 
-    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel" && id !== "catchgame");
+    if(fromId === "beatgame" && id !== "beatgame"){
+      stopBeatGame();
+    }
+
+    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel" && id !== "catchgame" && id !== "beatgame");
     updateNavActive(id);
 
     // clean up any screen left mid-transition by a superseded navigation
@@ -1839,6 +1986,240 @@
     completeActiveTask();
   }
 
+  // ---------- PUMPKIN BEAT (rhythm mini-game) ----------
+  // Beat timestamps (seconds) detected from BadWolf.mp3 via onset/autocorrelation analysis (~115 BPM).
+  var BEAT_TIMES = [0.043,0.565,1.077,1.6,2.133,2.645,3.168,3.691,4.213,4.736,5.248,5.771,6.304,6.816,7.339,7.872,8.384,8.917,9.429,9.952,10.475,10.987,11.52,12.032,12.565,13.088,13.6,14.123,14.645,15.179,15.691,16.224,16.736,17.259,17.781,18.293,18.827,19.339,19.861,20.384,20.907,21.472,21.941,22.475,22.997,23.509,24.032,24.565,25.077,25.611,26.123,26.656,27.168,27.68,28.203,28.736,29.248,29.771,30.325,30.816,31.339,31.936,32.384];
+  var BEAT_LANE_ICONS = ['🦇','🎃','👻'];
+  var BEAT_TRAVEL = 1.3;
+  var BEAT_PERFECT_WINDOW = 0.09;
+  var BEAT_GOOD_WINDOW = 0.18;
+  var BEAT_MISS_WINDOW = 0.26;
+
+  var beatAudio = new Audio("BadWolf.mp3");
+  beatAudio.preload = "auto";
+
+  var beatChart = [];
+  var beatScore = 0, beatCombo = 0, beatMaxCombo = 0;
+  var beatCounts = { perfect: 0, good: 0, miss: 0 };
+  var beatRunning = false;
+  var beatRafId = null;
+  var beatCountdownTimer = null;
+  var beatNextPulseIdx = 0;
+  var beatLaneEls = null;
+  var beatHitLineEl = null;
+
+  function beatBuildChart(){
+    beatChart = BEAT_TIMES.filter(function(t){ return t > 1.8; }).map(function(t, i){
+      return { time: t, lane: i % 3, spawnTime: t - BEAT_TRAVEL, resolved: false, el: null };
+    });
+  }
+
+  function beatMakeStars(){
+    var layer = document.getElementById("beatStarLayer");
+    layer.innerHTML = "";
+    for(var i = 0; i < 20; i++){
+      var s = document.createElement("div");
+      s.className = "beat-star";
+      s.style.left = (Math.random() * 100) + "%";
+      s.style.top = (Math.random() * 35) + "%";
+      s.style.animationDelay = (Math.random() * 2.4) + "s";
+      layer.appendChild(s);
+    }
+  }
+
+  function beatResetChart(){
+    beatChart.forEach(function(n){
+      n.resolved = false;
+      if(n.el){ n.el.remove(); n.el = null; }
+    });
+    beatScore = 0; beatCombo = 0; beatMaxCombo = 0;
+    beatCounts = { perfect: 0, good: 0, miss: 0 };
+    document.getElementById("beatScoreVal").textContent = "0";
+    document.getElementById("beatComboVal").textContent = "0";
+    beatNextPulseIdx = 0;
+  }
+
+  function beatFmtScore(n){ return String(n).padStart(4, "0"); }
+
+  function beatPopJudgment(laneIdx, text, cls){
+    var lane = beatLaneEls[laneIdx];
+    var j = document.createElement("div");
+    j.className = "beat-judgment " + cls;
+    j.textContent = text;
+    lane.appendChild(j);
+    setTimeout(function(){ j.remove(); }, 520);
+  }
+
+  function beatRegisterHit(laneIdx, cls, points){
+    beatScore += points;
+    if(cls === "miss"){ beatCombo = 0; }
+    else {
+      beatCombo++; beatMaxCombo = Math.max(beatMaxCombo, beatCombo);
+      var pill = document.getElementById("beatComboPill");
+      pill.classList.remove("pulse"); void pill.offsetWidth; pill.classList.add("pulse");
+    }
+    beatCounts[cls]++;
+    document.getElementById("beatScoreVal").textContent = beatFmtScore(beatScore);
+    document.getElementById("beatComboVal").textContent = beatCombo;
+    beatPopJudgment(laneIdx, cls === "perfect" ? "PERFECT" : cls === "good" ? "GOOD" : "MISS", cls);
+  }
+
+  function onBeatLaneTap(laneIdx){
+    if(!beatRunning) return;
+    beatLaneEls[laneIdx].classList.remove("tapped");
+    void beatLaneEls[laneIdx].offsetWidth;
+    beatLaneEls[laneIdx].classList.add("tapped");
+
+    var now = beatAudio.currentTime;
+    var best = null, bestDiff = Infinity;
+    for(var i = 0; i < beatChart.length; i++){
+      var n = beatChart[i];
+      if(n.resolved || n.lane !== laneIdx) continue;
+      var diff = Math.abs(now - n.time);
+      if(diff < bestDiff){ bestDiff = diff; best = n; }
+    }
+    if(best && bestDiff <= BEAT_GOOD_WINDOW){
+      best.resolved = true;
+      if(best.el){ best.el.remove(); best.el = null; }
+      if(bestDiff <= BEAT_PERFECT_WINDOW) beatRegisterHit(laneIdx, "perfect", 100);
+      else beatRegisterHit(laneIdx, "good", 50);
+    }
+  }
+
+  function beatTick(){
+    var t = beatAudio.currentTime;
+    var h = beatLaneEls[0].getBoundingClientRect().height;
+    var startY = -30, endY = h - 6;
+
+    for(var i = 0; i < beatChart.length; i++){
+      var n = beatChart[i];
+      if(n.resolved) continue;
+      if(t < n.spawnTime) continue;
+
+      if(!n.el){
+        var el = document.createElement("div");
+        el.className = "beat-note";
+        el.textContent = BEAT_LANE_ICONS[n.lane];
+        beatLaneEls[n.lane].appendChild(el);
+        n.el = el;
+      }
+      var progress = Math.min(1.35, (t - n.spawnTime) / BEAT_TRAVEL);
+      var y = startY + (endY - startY) * progress;
+      n.el.style.transform = "translateY(" + y + "px)";
+
+      if(t - n.time > BEAT_MISS_WINDOW){
+        n.resolved = true;
+        n.el.remove(); n.el = null;
+        beatRegisterHit(n.lane, "miss", 0);
+      }
+    }
+
+    while(beatNextPulseIdx < BEAT_TIMES.length && BEAT_TIMES[beatNextPulseIdx] <= t){
+      beatHitLineEl.classList.add("beat");
+      setTimeout(function(){ beatHitLineEl.classList.remove("beat"); }, 90);
+      beatNextPulseIdx++;
+    }
+
+    if(beatRunning){
+      var allResolved = beatChart.every(function(n){ return n.resolved; });
+      if(beatAudio.ended || (beatAudio.paused && t > 0 && allResolved)){
+        beatFinishSong();
+      } else {
+        beatRafId = requestAnimationFrame(beatTick);
+      }
+    }
+  }
+
+  function beatFinishSong(){
+    beatRunning = false;
+    cancelAnimationFrame(beatRafId);
+    var total = beatCounts.perfect + beatCounts.good + beatCounts.miss;
+    var acc = total ? Math.round(((beatCounts.perfect * 100 + beatCounts.good * 50) / (total * 100)) * 100) : 0;
+    var grade = "D";
+    if(acc >= 95) grade = "S";
+    else if(acc >= 85) grade = "A";
+    else if(acc >= 70) grade = "B";
+    else if(acc >= 50) grade = "C";
+
+    document.getElementById("beatGradeBadge").textContent = grade;
+    document.getElementById("beatStatScore").textContent = beatFmtScore(beatScore);
+    document.getElementById("beatStatAcc").textContent = acc + "%";
+    document.getElementById("beatStatCombo").textContent = beatMaxCombo;
+    document.getElementById("beatEndSub").textContent = "Perfect " + beatCounts.perfect + " · Good " + beatCounts.good + " · Miss " + beatCounts.miss;
+    document.getElementById("beatEndTitle").textContent =
+      grade === "S" ? "Flawless!" : grade === "A" ? "Great job!" : grade === "B" ? "Nice work!" : grade === "C" ? "Getting there!" : "Keep practicing!";
+
+    if(grade === "S" || grade === "A") spawnConfetti(50);
+    document.getElementById("beatEndOverlay").classList.add("show");
+  }
+
+  function beatStartCountdown(){
+    document.getElementById("beatStartOverlay").classList.remove("show");
+    var overlay = document.getElementById("beatCountdownOverlay");
+    var numEl = document.getElementById("beatCountdownNum");
+    overlay.classList.add("show");
+    var n = 3;
+    numEl.textContent = n;
+    beatCountdownTimer = setInterval(function(){
+      n--;
+      if(n > 0){
+        numEl.textContent = n;
+      } else if(n === 0){
+        numEl.textContent = "Go!";
+      } else {
+        clearInterval(beatCountdownTimer);
+        overlay.classList.remove("show");
+        beatBeginSong();
+      }
+    }, 700);
+  }
+
+  function beatBeginSong(){
+    beatResetChart();
+    beatAudio.currentTime = 0;
+    beatAudio.volume = SOUND_VOLUME;
+    beatAudio.muted = soundMuted;
+    beatAudio.play().catch(function(){});
+    beatRunning = true;
+    beatRafId = requestAnimationFrame(beatTick);
+  }
+
+  function openBeatGame(){
+    beatLaneEls = Array.prototype.slice.call(document.querySelectorAll(".beat-lane"));
+    beatHitLineEl = document.getElementById("beatHitLine");
+    if(!beatChart.length) beatBuildChart();
+    beatLaneEls.forEach(function(el, i){
+      el.onpointerdown = function(){ onBeatLaneTap(i); };
+    });
+    show("beatgame", "forward");
+    beatMakeStars();
+    beatResetChart();
+    document.getElementById("beatEndOverlay").classList.remove("show");
+    document.getElementById("beatStartOverlay").classList.add("show");
+  }
+
+  function stopBeatGame(){
+    beatRunning = false;
+    clearInterval(beatCountdownTimer);
+    cancelAnimationFrame(beatRafId);
+    beatAudio.pause();
+    beatAudio.currentTime = 0;
+    document.getElementById("beatCountdownOverlay").classList.remove("show");
+  }
+
+  function exitBeatGame(){
+    stopBeatGame();
+    document.getElementById("beatStartOverlay").classList.remove("show");
+    document.getElementById("beatEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
+  function closeBeatGame(){
+    stopBeatGame();
+    document.getElementById("beatEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
   // ---------- REWARD ----------
   function goToReward(direction){
     var reward = state.rewards && state.rewards.length
@@ -1967,6 +2348,7 @@
     soundMuted = !soundMuted;
     try{ localStorage.setItem(MUTE_KEY, soundMuted ? "1" : "0"); }catch(e){}
     updateMuteButton();
+    beatAudio.muted = soundMuted;
     if(soundMuted){
       activeSounds.forEach(function(a){ a.pause(); });
       activeSounds = [];
@@ -2193,6 +2575,10 @@
       case "skip-games": completeActiveTask(); break;
       case "exit-wheel": exitWheelGame(); break;
       case "exit-catch": exitCatchGame(); break;
+      case "open-beat": openBeatGame(); break;
+      case "beat-start": beatStartCountdown(); break;
+      case "beat-continue": closeBeatGame(); break;
+      case "exit-beat": exitBeatGame(); break;
       case "toggle-mute": toggleMute(); break;
       case "nav-home": activeTaskId = null; show("splash", "back"); break;
       case "nav-chores": activeTaskId = null; show("tasklist", "back"); break;
