@@ -328,7 +328,7 @@
   .wheel-screen{ align-items:center; justify-content:center; text-align:center; gap:14px; }
   .wheel-eyebrow{ font-size:17px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slime); font-weight:800; }
   .wheel-title{ font-family:'Creepster', cursive; font-size:26px; color:var(--pumpkin); margin:0; }
-  .wheel-sub{ font-size:12px; color:var(--bone-dim); max-width:260px; margin-top:-8px; }
+  .wheel-sub{ font-size:12px; color:var(--bone-dim); max-width:260px; margin:-8px auto 0; }
 
   .wheel-wrap{ position:relative; width:270px; height:270px; margin-top:4px; }
   .wheel-pointer{
@@ -425,7 +425,7 @@
   .catch-splat{ position:absolute; z-index:4; font-size:20px; pointer-events:none; opacity:0.9; animation: catchSplatFade 0.7s ease forwards; }
   @keyframes catchSplatFade{ 0%{ transform:scale(0.6); opacity:1;} 60%{transform:scale(1);} 100%{ opacity:0; } }
   #catchBasket{
-    position:absolute; bottom:26px; z-index:6; width:64px; height:47px; pointer-events:none;
+    position:absolute; bottom:56px; z-index:6; width:64px; height:47px; pointer-events:none;
     filter: drop-shadow(0 8px 10px rgba(0,0,0,0.4)); transition: transform .08s ease;
   }
   #catchBasket.bounce{ animation: catchBasketBounce .28s ease; }
@@ -833,7 +833,7 @@
     <button class="mini-skip-btn" data-action="exit-catch" aria-label="Go back and continue with chores">⬅️</button>
     <div class="wheel-eyebrow">Nice work!</div>
     <h2 class="wheel-title">Catch the pumpkins</h2>
-    <p class="wheel-sub">Drag to move the basket. Catch 80% to win the round.</p>
+    <p class="wheel-sub">Drag to move the basket. Catch 50% to win the round.</p>
 
     <div class="catch-gamearea" id="catchGameArea">
       <div id="catchStarLayer"></div>
@@ -858,7 +858,7 @@
         <div class="fact-card">
           <div class="fact-icon">🧺</div>
           <div class="fact-label">Mini-Game</div>
-          <div class="fact-text">50 pumpkins are about to drop, fast. Catch 80% of them to win the round.</div>
+          <div class="fact-text">50 pumpkins are about to drop, fast. Catch 50% of them to win the round.</div>
           <button class="fact-continue" data-action="catch-start">Start Catching</button>
         </div>
       </div>
@@ -1761,7 +1761,7 @@
 
   // ---------- PUMPKIN CATCH ----------
   var CATCH_TOTAL = 50;
-  var CATCH_WIN_THRESHOLD = 0.8;
+  var CATCH_WIN_THRESHOLD = 0.5;
   var CATCH_BASKET_W = 64;
   var CATCH_GROUND_H = 30;
 
@@ -1859,7 +1859,7 @@
     if(catchSpawned >= CATCH_TOTAL) return;
     catchSpawned++;
     var size = 26 + Math.random() * 14;
-    var speed = 2.4 + Math.random() * 1.7 + (catchSpawned / CATCH_TOTAL) * 2.6;
+    var speed = (2.4 + Math.random() * 1.7 + (catchSpawned / CATCH_TOTAL) * 2.6) * 0.75;
     var x = Math.random() * (catchAreaW - size);
     var el = document.createElement("div");
     el.className = "catch-pumpkin";
@@ -1878,7 +1878,7 @@
   }
 
   function catchLoop(){
-    var basketTop = catchAreaH - CATCH_GROUND_H - 26;
+    var basketTop = catchAreaH - CATCH_GROUND_H - 56;
     for(var i = 0; i < catchPumpkins.length; i++){
       var p = catchPumpkins[i];
       if(p.resolved) continue;
@@ -1935,7 +1935,7 @@
     } else {
       document.getElementById("catchEndIcon").textContent = "🎃";
       document.getElementById("catchEndTitle").textContent = "Better luck next time!";
-      document.getElementById("catchEndSub").textContent = "You caught " + catchCaught + " out of " + CATCH_TOTAL + " pumpkins. Catch 80% to win the round.";
+      document.getElementById("catchEndSub").textContent = "You caught " + catchCaught + " out of " + CATCH_TOTAL + " pumpkins. Catch 50% to win the round.";
     }
     document.getElementById("catchEndOverlay").classList.add("show");
   }
