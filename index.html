@@ -287,15 +287,16 @@
   .btn-half{ max-width: 160px; }
   .btn-ghost{ background: transparent; border: 2px solid rgba(255,255,255,0.14); color: var(--bone-dim); font-weight:700; padding: 14px; border-radius: 14px; }
 
-  /* ---------- optional spin-wheel teaser on the "I did it" page ---------- */
-  .wheel-teaser{
-    display:inline-flex; flex-direction:row; align-items:center; gap:8px;
-    margin-top:26px; padding:7px 14px 7px 7px; border-radius:999px;
+  /* ---------- optional mini-game teasers on the "I did it" page ---------- */
+  .teaser-row{ display:flex; flex-direction:row; align-items:center; justify-content:center; gap:14px; margin-top:26px; }
+  .wheel-teaser, .catch-teaser{
+    width:52px; height:52px; flex-shrink:0; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
     background:var(--panel); border:1px dashed rgba(255,208,138,0.5);
-    cursor:pointer;
+    cursor:pointer; padding:0; margin-top:0;
   }
-  .wheel-teaser:active{ transform:scale(0.97); }
-  .wheel-teaser-icon{ width:26px; height:26px; flex-shrink:0; }
+  .wheel-teaser:active, .catch-teaser:active{ transform:scale(0.93); }
+  .wheel-teaser-icon{ width:28px; height:28px; flex-shrink:0; }
   .mini-wheel{
     width:100%; height:100%; border-radius:50%; position:relative;
     background: conic-gradient(
@@ -311,7 +312,6 @@
     width:7px; height:7px; border-radius:50%; background:var(--bg); border:1.5px solid var(--bone);
   }
   @keyframes miniWheelSpin{ to{ transform:rotate(360deg); } }
-  .wheel-teaser-text{ font-size:12px; font-weight:800; color:var(--glow); white-space:nowrap; }
 
   /* ---------- SPIN WHEEL SCREEN ---------- */
   .wheel-screen{ align-items:center; justify-content:center; text-align:center; gap:14px; }
@@ -366,6 +366,70 @@
     font-weight:800; font-size:15px; cursor:pointer;
   }
   .fact-continue:active{ transform:scale(0.97); }
+
+  .catch-teaser{ border-color: rgba(255,117,24,0.5); }
+  .catch-teaser-icon{ width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:34px; line-height:1; }
+
+  /* ---------- PUMPKIN CATCH SCREEN ---------- */
+  .catch-screen{ align-items:stretch; justify-content:flex-start; text-align:center; gap:10px; }
+  .catch-screen .wheel-title{ font-size:22px; }
+  .catch-gamearea{
+    position:relative; flex:1; min-height:0; margin: 4px -18px 0; overflow:hidden;
+    touch-action:none; cursor:grab;
+    background: linear-gradient(180deg, #14232c 0%, #1b2f3b 55%, #223a47 100%);
+    border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .catch-gamearea:active{ cursor:grabbing; }
+  .catch-star{ position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; opacity:0.7; animation: catchTwinkle 2.6s ease-in-out infinite; }
+  @keyframes catchTwinkle{ 0%,100%{opacity:0.2;} 50%{opacity:0.85;} }
+  .catch-ground{
+    position:absolute; left:0; right:0; bottom:0; height:34px;
+    background: linear-gradient(180deg, #3a2a17, #241a0f);
+    border-top: 3px solid #4d3a20;
+  }
+  .catch-hud{
+    position:absolute; top:12px; left:12px; right:12px; z-index:6;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .catch-score{
+    background:rgba(12,10,20,0.55); border:1px solid rgba(255,255,255,0.14);
+    color:#fff; font-size:12px; font-weight:800; padding:6px 12px; border-radius:999px;
+    display:flex; align-items:center; gap:6px; font-variant-numeric: tabular-nums;
+  }
+  .catch-progress-track{
+    flex:1; height:8px; border-radius:999px; background:rgba(255,255,255,0.14); overflow:hidden;
+    border:1px solid rgba(255,255,255,0.1);
+  }
+  .catch-progress-fill{ height:100%; width:0%; background: linear-gradient(90deg, #FF9A44, var(--pumpkin)); transition: width .25s ease; }
+  .catch-pumpkin{
+    position:absolute; z-index:5; user-select:none; pointer-events:none;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.4));
+  }
+  .catch-pumpkin svg{ display:block; width:100%; height:100%; }
+  .catch-plusone{
+    position:absolute; z-index:8; font-weight:800; font-size:15px; color:var(--slime); pointer-events:none;
+    animation: catchFloatUp .6s ease forwards;
+  }
+  @keyframes catchFloatUp{ 0%{ transform:translateY(0); opacity:1; } 100%{ transform:translateY(-26px); opacity:0; } }
+  .catch-splat{ position:absolute; z-index:4; font-size:20px; pointer-events:none; opacity:0.9; animation: catchSplatFade 0.7s ease forwards; }
+  @keyframes catchSplatFade{ 0%{ transform:scale(0.6); opacity:1;} 60%{transform:scale(1);} 100%{ opacity:0; } }
+  #catchBasket{
+    position:absolute; bottom:26px; z-index:6; width:64px; height:47px; pointer-events:none;
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.4)); transition: transform .08s ease;
+  }
+  #catchBasket.bounce{ animation: catchBasketBounce .28s ease; }
+  @keyframes catchBasketBounce{ 0%{transform:scale(1,1);} 35%{transform:scale(1.12,0.86);} 100%{transform:scale(1,1);} }
+  .catch-overlay{
+    position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    padding:24px; background:rgba(11,17,22,0.78); opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .catch-overlay.show{ opacity:1; pointer-events:auto; }
+  .catch-overlay .fact-card{ max-width:280px; }
+  .catch-overlay.show .fact-card{ transform:translateY(0) scale(1); opacity:1; }
+  .catch-stats{ display:flex; justify-content:center; gap:22px; margin:12px 0 2px; }
+  .catch-stat{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .catch-stat b{ font-size:20px; color:var(--bone); font-variant-numeric: tabular-nums; }
+  .catch-stat span{ font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--bone-dim); }
 
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
@@ -628,9 +692,13 @@
     <p class="task-hint" id="taskDetailHint">Do the chore, then come back and check it off.</p>
     <button class="btn btn-yes btn-wide btn-half" data-action="task-done">I did it!</button>
 
-    <div class="wheel-teaser" data-action="open-wheel">
-      <div class="wheel-teaser-icon"><div class="mini-wheel"></div></div>
-      <div class="wheel-teaser-text">Spin for a fun Halloween fact?</div>
+    <div class="teaser-row">
+      <div class="wheel-teaser" data-action="open-wheel" aria-label="Spin for a fun Halloween fact">
+        <div class="wheel-teaser-icon"><div class="mini-wheel"></div></div>
+      </div>
+      <div class="catch-teaser" data-action="open-catch" aria-label="Catch falling pumpkins">
+        <div class="catch-teaser-icon">🎃</div>
+      </div>
     </div>
   </section>
 
@@ -653,6 +721,55 @@
         <div class="fact-label">Did you know?</div>
         <div class="fact-text" id="factText">Fact goes here.</div>
         <button class="fact-continue" data-action="wheel-continue">Sweet! Continue →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUMPKIN CATCH -->
+  <section id="catchgame" class="screen catch-screen">
+    <div class="wheel-eyebrow">Nice work!</div>
+    <h2 class="wheel-title">Catch the pumpkins</h2>
+    <p class="wheel-sub">Drag to move the basket. Catch 80% to win the round.</p>
+
+    <div class="catch-gamearea" id="catchGameArea">
+      <div id="catchStarLayer"></div>
+      <div class="catch-ground"></div>
+
+      <div class="catch-hud">
+        <div class="catch-score" id="catchScorePill">🎃 0/50</div>
+        <div class="catch-progress-track"><div class="catch-progress-fill" id="catchProgressFill"></div></div>
+      </div>
+
+      <div id="catchBasket">
+        <svg viewBox="0 0 76 56" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="38" cy="10" rx="30" ry="8" fill="#B97A3D"/>
+          <path d="M10 12 L18 50 Q38 58 58 50 L66 12 Z" fill="#D89654"/>
+          <path d="M10 12 L18 50 Q38 58 58 50 L66 12" fill="none" stroke="#8C5A2B" stroke-width="2.5"/>
+          <path d="M14 18 L62 18 M12.5 28 L63.5 28 M15 40 L61 40" stroke="#8C5A2B" stroke-width="1.6" opacity="0.6"/>
+          <path d="M24 12 Q38 -6 52 12" fill="none" stroke="#8C5A2B" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="catch-overlay show" id="catchStartOverlay">
+        <div class="fact-card">
+          <div class="fact-icon">🧺</div>
+          <div class="fact-label">Mini-Game</div>
+          <div class="fact-text">50 pumpkins are about to drop, fast. Catch 80% of them to win the round.</div>
+          <button class="fact-continue" data-action="catch-start">Start Catching</button>
+        </div>
+      </div>
+
+      <div class="catch-overlay" id="catchEndOverlay">
+        <div class="fact-card">
+          <div class="fact-icon" id="catchEndIcon">🎉</div>
+          <div class="fact-label" id="catchEndTitle">Sweet haul!</div>
+          <div class="catch-stats">
+            <div class="catch-stat"><b id="catchStatCaught">0/50</b><span>Caught</span></div>
+            <div class="catch-stat"><b id="catchStatPct">0%</b><span>Catch Rate</span></div>
+          </div>
+          <div class="fact-text" id="catchEndSub" style="font-size:13px;">You caught 0 out of 50 pumpkins.</div>
+          <button class="fact-continue" data-action="catch-continue">Continue →</button>
+        </div>
       </div>
     </div>
   </section>
@@ -789,7 +906,7 @@
   var gone = 0;
 
   var screens = {};
-  ["splash","cutscene","tasklist","taskdetail","wheel","reward","admin"].forEach(function(id){
+  ["splash","cutscene","tasklist","taskdetail","wheel","catchgame","reward","admin"].forEach(function(id){
     screens[id] = document.getElementById(id);
   });
 
@@ -816,7 +933,7 @@
       stopRewardSound();
     }
 
-    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel");
+    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel" && id !== "catchgame");
     updateNavActive(id);
 
     // clean up any screen left mid-transition by a superseded navigation
@@ -1470,6 +1587,224 @@
     completeActiveTask();
   }
 
+  // ---------- PUMPKIN CATCH ----------
+  var CATCH_TOTAL = 50;
+  var CATCH_WIN_THRESHOLD = 0.8;
+  var CATCH_BASKET_W = 64;
+  var CATCH_GROUND_H = 30;
+
+  var catchArea = null, catchBasket = null;
+  var catchAreaW = 0, catchAreaH = 0;
+  var catchBasketX = 0;
+  var catchCaught = 0, catchMissed = 0, catchSpawned = 0;
+  var catchPumpkins = [];
+  var catchRunning = false;
+  var catchSpawnTimer = null;
+  var catchRafId = null;
+  var catchDragging = false;
+  var catchWired = false;
+
+  function catchPumpkinSVG(){
+    return '<svg viewBox="0 0 44 40" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M22 6 Q19 0 22 -3" fill="none" stroke="#5C7A2E" stroke-width="3" stroke-linecap="round"/>' +
+      '<ellipse cx="22" cy="24" rx="20" ry="15" fill="#FF7518"/>' +
+      '<path d="M12 12 Q22 6 32 12 Q22 40 12 12 Z" fill="#FF8A3D" opacity="0.6"/>' +
+      '<path d="M2 24 Q22 34 42 24 Q22 42 2 24 Z" fill="#C2540C" opacity="0.55"/>' +
+      '</svg>';
+  }
+
+  function catchMeasure(){
+    var r = catchArea.getBoundingClientRect();
+    catchAreaW = r.width; catchAreaH = r.height;
+  }
+
+  function catchSetBasketX(px){
+    catchBasketX = Math.max(0, Math.min(catchAreaW - CATCH_BASKET_W, px));
+    catchBasket.style.left = catchBasketX + "px";
+  }
+
+  function catchMakeStars(){
+    var layer = document.getElementById("catchStarLayer");
+    layer.innerHTML = "";
+    for(var i = 0; i < 22; i++){
+      var s = document.createElement("div");
+      s.className = "catch-star";
+      s.style.left = (Math.random() * 100) + "%";
+      s.style.top = (Math.random() * 45) + "%";
+      s.style.animationDelay = (Math.random() * 2.4) + "s";
+      layer.appendChild(s);
+    }
+  }
+
+  function catchWireDrag(){
+    if(catchWired) return;
+    catchWired = true;
+    catchArea.addEventListener("pointerdown", function(e){
+      catchDragging = true;
+      var rect = catchArea.getBoundingClientRect();
+      catchSetBasketX(e.clientX - rect.left - CATCH_BASKET_W / 2);
+    });
+    window.addEventListener("pointermove", function(e){
+      if(!catchDragging) return;
+      var rect = catchArea.getBoundingClientRect();
+      catchSetBasketX(e.clientX - rect.left - CATCH_BASKET_W / 2);
+    });
+    window.addEventListener("pointerup", function(){ catchDragging = false; });
+  }
+
+  function catchUpdateHud(){
+    document.getElementById("catchScorePill").textContent = "🎃 " + catchCaught + "/" + CATCH_TOTAL;
+    document.getElementById("catchProgressFill").style.width = ((catchCaught + catchMissed) / CATCH_TOTAL * 100) + "%";
+  }
+
+  function catchPopPlusOne(x, y){
+    var t = document.createElement("div");
+    t.className = "catch-plusone";
+    t.textContent = "+1";
+    t.style.left = x + "px";
+    t.style.top = y + "px";
+    catchArea.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 650);
+  }
+
+  function catchPopSplat(x, y){
+    var t = document.createElement("div");
+    t.className = "catch-splat";
+    t.textContent = "💥";
+    t.style.left = x + "px";
+    t.style.top = y + "px";
+    catchArea.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 720);
+  }
+
+  function catchBounceBasket(){
+    catchBasket.classList.remove("bounce");
+    void catchBasket.offsetWidth;
+    catchBasket.classList.add("bounce");
+  }
+
+  function catchSpawnPumpkin(){
+    if(catchSpawned >= CATCH_TOTAL) return;
+    catchSpawned++;
+    var size = 26 + Math.random() * 14;
+    var speed = 2.4 + Math.random() * 1.7 + (catchSpawned / CATCH_TOTAL) * 2.6;
+    var x = Math.random() * (catchAreaW - size);
+    var el = document.createElement("div");
+    el.className = "catch-pumpkin";
+    el.style.width = size + "px";
+    el.style.height = (size * 0.9) + "px";
+    el.style.left = x + "px";
+    el.style.top = "-40px";
+    el.innerHTML = catchPumpkinSVG();
+    catchArea.appendChild(el);
+    catchPumpkins.push({ el: el, x: x, y: -40, size: size, speed: speed, resolved: false });
+    catchUpdateHud();
+    if(catchSpawned < CATCH_TOTAL){
+      var nextDelay = Math.max(190, 420 - catchSpawned * 14 + Math.random() * 140);
+      catchSpawnTimer = setTimeout(catchSpawnPumpkin, nextDelay);
+    }
+  }
+
+  function catchLoop(){
+    var basketTop = catchAreaH - CATCH_GROUND_H - 26;
+    for(var i = 0; i < catchPumpkins.length; i++){
+      var p = catchPumpkins[i];
+      if(p.resolved) continue;
+      p.y += p.speed;
+      p.el.style.top = p.y + "px";
+
+      var pumpkinBottom = p.y + p.size * 0.9;
+      var pumpkinCenterX = p.x + p.size / 2;
+
+      if(pumpkinBottom >= basketTop){
+        var inBasketX = pumpkinCenterX >= catchBasketX - 6 && pumpkinCenterX <= catchBasketX + CATCH_BASKET_W + 6;
+        if(inBasketX && pumpkinBottom <= basketTop + 26){
+          p.resolved = true;
+          catchCaught++;
+          catchPopPlusOne(pumpkinCenterX - 8, basketTop - 14);
+          catchBounceBasket();
+          p.el.remove();
+          catchUpdateHud();
+          catchCheckEnd();
+          continue;
+        }
+      }
+      if(p.y > catchAreaH - CATCH_GROUND_H - 6){
+        p.resolved = true;
+        catchMissed++;
+        catchPopSplat(p.x, catchAreaH - CATCH_GROUND_H - 18);
+        p.el.remove();
+        catchUpdateHud();
+        catchCheckEnd();
+      }
+    }
+    catchPumpkins = catchPumpkins.filter(function(p){ return !p.resolved; });
+    if(catchRunning) catchRafId = requestAnimationFrame(catchLoop);
+  }
+
+  function catchCheckEnd(){
+    if(catchCaught + catchMissed >= CATCH_TOTAL){
+      catchRunning = false;
+      cancelAnimationFrame(catchRafId);
+      setTimeout(catchShowEnd, 350);
+    }
+  }
+
+  function catchShowEnd(){
+    var pct = Math.round((catchCaught / CATCH_TOTAL) * 100);
+    document.getElementById("catchStatCaught").textContent = catchCaught + "/" + CATCH_TOTAL;
+    document.getElementById("catchStatPct").textContent = pct + "%";
+    var win = (catchCaught / CATCH_TOTAL) >= CATCH_WIN_THRESHOLD;
+    if(win){
+      document.getElementById("catchEndIcon").textContent = "🎉";
+      document.getElementById("catchEndTitle").textContent = "Sweet haul!";
+      document.getElementById("catchEndSub").textContent = "You caught " + catchCaught + " out of " + CATCH_TOTAL + " pumpkins — great reflexes!";
+      spawnConfetti(50);
+    } else {
+      document.getElementById("catchEndIcon").textContent = "🎃";
+      document.getElementById("catchEndTitle").textContent = "Better luck next time!";
+      document.getElementById("catchEndSub").textContent = "You caught " + catchCaught + " out of " + CATCH_TOTAL + " pumpkins. Catch 80% to win the round.";
+    }
+    document.getElementById("catchEndOverlay").classList.add("show");
+  }
+
+  function catchResetGame(){
+    clearTimeout(catchSpawnTimer);
+    cancelAnimationFrame(catchRafId);
+    catchPumpkins.forEach(function(p){ p.el.remove(); });
+    catchPumpkins = [];
+    catchArea.querySelectorAll(".catch-plusone,.catch-splat").forEach(function(n){ n.remove(); });
+    catchCaught = 0; catchMissed = 0; catchSpawned = 0;
+    catchUpdateHud();
+    catchMeasure();
+    catchSetBasketX(catchAreaW / 2 - CATCH_BASKET_W / 2);
+    document.getElementById("catchEndOverlay").classList.remove("show");
+  }
+
+  function openCatch(){
+    catchArea = document.getElementById("catchGameArea");
+    catchBasket = document.getElementById("catchBasket");
+    catchWireDrag();
+    show("catchgame", "forward");
+    catchMeasure();
+    catchMakeStars();
+    catchResetGame();
+    document.getElementById("catchStartOverlay").classList.add("show");
+  }
+
+  function startCatchGame(){
+    catchResetGame();
+    document.getElementById("catchStartOverlay").classList.remove("show");
+    catchRunning = true;
+    catchSpawnPumpkin();
+    catchRafId = requestAnimationFrame(catchLoop);
+  }
+
+  function closeCatchGame(){
+    document.getElementById("catchEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
   // ---------- REWARD ----------
   function goToReward(direction){
     var reward = state.rewards && state.rewards.length
@@ -1818,6 +2153,9 @@
       case "open-wheel": openWheel(); break;
       case "spin-wheel": spinWheel(); break;
       case "wheel-continue": closeWheelFact(); break;
+      case "open-catch": openCatch(); break;
+      case "catch-start": startCatchGame(); break;
+      case "catch-continue": closeCatchGame(); break;
       case "toggle-mute": toggleMute(); break;
       case "nav-home": activeTaskId = null; show("splash", "back"); break;
       case "nav-chores": activeTaskId = null; show("tasklist", "back"); break;
