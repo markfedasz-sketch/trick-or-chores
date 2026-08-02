@@ -1998,6 +1998,12 @@
   var beatAudio = new Audio("SpookyRemix.mp3");
   beatAudio.preload = "auto";
 
+  // Countdown is 4 ticks of 700ms ("3","2","1","Go!") before the song actually starts playing.
+  // The note-fall clock runs from the moment the countdown begins (not from audio.currentTime),
+  // offset by this preroll, so the very first beat lines up with the first falling note reaching
+  // the hit line — even though that beat happens well before BEAT_TRAVEL seconds of playback.
+  var BEAT_PREROLL = 2.8;
+
   var beatChart = [];
   var beatScore = 0, beatCombo = 0, beatMaxCombo = 0;
   var beatCounts = { perfect: 0, good: 0, miss: 0 };
@@ -2007,9 +2013,14 @@
   var beatNextPulseIdx = 0;
   var beatLaneEls = null;
   var beatHitLineEl = null;
+  var beatGameClockStart = 0;
+
+  function beatNow(){
+    return (performance.now() - beatGameClockStart) / 1000 - BEAT_PREROLL;
+  }
 
   function beatBuildChart(){
-    beatChart = BEAT_TIMES.filter(function(t){ return t > 1.8; }).map(function(t, i){
+    beatChart = BEAT_TIMES.map(function(t, i){
       return { time: t, lane: i % 3, spawnTime: t - BEAT_TRAVEL, resolved: false, el: null };
     });
   }
@@ -2070,7 +2081,7 @@
     void beatLaneEls[laneIdx].offsetWidth;
     beatLaneEls[laneIdx].classList.add("tapped");
 
-    var now = beatAudio.currentTime;
+    var now = beatNow();
     var best = null, bestDiff = Infinity;
     for(var i = 0; i < beatChart.length; i++){
       var n = beatChart[i];
@@ -2087,7 +2098,7 @@
   }
 
   function beatTick(){
-    var t = beatAudio.currentTime;
+    var t = beatNow();
     var h = beatLaneEls[0].getBoundingClientRect().height;
     var startY = -30, endY = h - 6;
 
@@ -2122,7 +2133,8 @@
 
     if(beatRunning){
       var allResolved = beatChart.every(function(n){ return n.resolved; });
-      if(beatAudio.ended || (beatAudio.paused && t > 0 && allResolved)){
+      var lastBeatTime = BEAT_TIMES[BEAT_TIMES.length - 1];
+      if(beatAudio.ended || (allResolved && t > lastBeatTime + BEAT_MISS_WINDOW + 0.3)){
         beatFinishSong();
       } else {
         beatRafId = requestAnimationFrame(beatTick);
@@ -2158,6 +2170,15 @@
     var overlay = document.getElementById("beatCountdownOverlay");
     var numEl = document.getElementById("beatCountdownNum");
     overlay.classList.add("show");
+
+    // The fall clock starts ticking right now, at BEAT_PREROLL seconds "before the song" —
+    // notes for early beats are already mid-fall by the time the countdown finishes and the
+    // audio actually starts, so they still arrive on their real beat.
+    beatResetChart();
+    beatGameClockStart = performance.now();
+    beatRunning = true;
+    beatRafId = requestAnimationFrame(beatTick);
+
     var n = 3;
     numEl.textContent = n;
     beatCountdownTimer = setInterval(function(){
@@ -2175,13 +2196,10 @@
   }
 
   function beatBeginSong(){
-    beatResetChart();
     beatAudio.currentTime = 0;
     beatAudio.volume = SOUND_VOLUME;
     beatAudio.muted = soundMuted;
     beatAudio.play().catch(function(){});
-    beatRunning = true;
-    beatRafId = requestAnimationFrame(beatTick);
   }
 
   function openBeatGame(){
