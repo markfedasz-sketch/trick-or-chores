@@ -527,6 +527,56 @@
   .beat-stat b{ font-size:18px; color:var(--bone); font-variant-numeric: tabular-nums; }
   .beat-stat span{ font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:var(--bone-dim); }
 
+  /* ---------- PUMPKIN MATCH (memory card game) ---------- */
+  .match-screen{ align-items:stretch; justify-content:flex-start; text-align:center; gap:6px; }
+  .match-screen .wheel-title{ font-size:22px; }
+  .match-hud{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:8px; }
+  .match-hud-pill{
+    background:rgba(0,0,0,0.22); border:1px solid rgba(255,255,255,0.12); color:var(--bone);
+    font-size:11.5px; font-weight:800; padding:5px 11px; border-radius:999px;
+    display:flex; align-items:center; gap:5px; font-variant-numeric: tabular-nums;
+  }
+  .match-board-wrap{ position:relative; flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .match-study-badge{
+    position:absolute; top:2px; left:50%; transform:translateX(-50%);
+    background: var(--glow); color:#241300; font-size:10px; font-weight:800; letter-spacing:.04em;
+    padding:4px 10px; border-radius:999px; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:6;
+    text-transform:uppercase;
+  }
+  .match-board{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;
+    width:100%; max-width:280px; margin:22px auto 0; perspective:700px;
+  }
+  .match-cardslot{ aspect-ratio: 3/4; position:relative; }
+  .match-card{
+    position:absolute; inset:0; border-radius:10px; cursor:pointer;
+    transform-style: preserve-3d; transition: transform .45s cubic-bezier(.3,.9,.4,1);
+  }
+  .match-card.flipped{ transform: rotateY(180deg); }
+  .match-card.matched{ cursor:default; }
+  .match-card.matched .match-card-face{ box-shadow: 0 0 0 2px var(--slime), 0 4px 10px rgba(0,0,0,0.35); }
+  .match-card.pulse{ animation: matchCardPulse .4s ease; }
+  @keyframes matchCardPulse{ 0%{transform:scale(1);} 40%{transform:scale(0.9) rotateY(180deg);} 100%{transform:scale(1) rotateY(180deg);} }
+  .match-card.shake{ animation: matchCardShake .4s ease; }
+  @keyframes matchCardShake{ 0%,100%{transform:rotateY(180deg) translateX(0);} 25%{transform:rotateY(180deg) translateX(-4px);} 75%{transform:rotateY(180deg) translateX(4px);} }
+  .match-card-face{
+    position:absolute; inset:0; border-radius:10px; backface-visibility:hidden;
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .match-card-front{ background: var(--panel); border: 1px solid rgba(255,255,255,0.08); }
+  .match-card-back{
+    background: linear-gradient(135deg, var(--pumpkin-dark), var(--pumpkin));
+    transform: rotateY(180deg); color: rgba(255,255,255,0.9); font-size:18px;
+  }
+  .match-card-back::after{ content:"🎃"; }
+  .match-start-btn{
+    margin:16px auto 4px; max-width:220px; width:100%; border:none; border-radius:999px; padding:13px;
+    background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); color:var(--bg);
+    font-weight:800; font-size:14.5px; cursor:pointer;
+  }
+  .match-start-btn:active{ transform:scale(0.97); }
+
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
   #reward h2{ font-size: 34px; }
@@ -798,7 +848,7 @@
       <div class="beat-teaser" data-action="open-beat" aria-label="Tap to the beat mini-game">
         <div class="beat-teaser-icon">🥁</div>
       </div>
-      <div class="ghost-teaser" data-action="skip-games" aria-label="Skip mini-games and finish chore">
+      <div class="ghost-teaser" data-action="open-match" aria-label="Play the pumpkin matching mini-game">
         <div class="ghost-teaser-icon">👻</div>
       </div>
     </div>
@@ -929,6 +979,38 @@
           <div class="fact-text" id="beatEndSub" style="font-size:13px;">Perfect 0 · Good 0 · Miss 0</div>
           <button class="fact-continue" data-action="beat-continue">Continue →</button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUMPKIN MATCH (memory card game) -->
+  <section id="matchgame" class="screen match-screen">
+    <button class="mini-skip-btn" data-action="exit-match" aria-label="Go back and continue with chores">⬅️</button>
+    <div class="wheel-eyebrow">Nice work!</div>
+    <h2 class="wheel-title">Pumpkin Match</h2>
+    <p class="wheel-sub" id="matchSubText">Study the board — matching starts when you're ready.</p>
+
+    <div class="match-hud">
+      <div class="match-hud-pill" id="matchPairsPill">🎃 0/6 pairs</div>
+      <div class="match-hud-pill" id="matchMovesPill">🔄 0 moves</div>
+    </div>
+
+    <div class="match-board-wrap">
+      <div class="match-study-badge" id="matchStudyBadge">Studying…</div>
+      <div class="match-board" id="matchBoard"></div>
+      <button class="match-start-btn" id="matchStartBtn" data-action="match-start">Start Matching</button>
+    </div>
+
+    <div class="fact-overlay" id="matchEndOverlay">
+      <div class="fact-card">
+        <div class="fact-icon">🏆</div>
+        <div class="fact-label">Round Complete</div>
+        <div class="fact-text">All matched!</div>
+        <div class="beat-stat-row">
+          <div class="beat-stat"><b id="matchStatMoves">0</b><span>Moves</span></div>
+          <div class="beat-stat"><b id="matchStatTime">0s</b><span>Time</span></div>
+        </div>
+        <button class="fact-continue" data-action="match-continue">Continue →</button>
       </div>
     </div>
   </section>
@@ -1065,7 +1147,7 @@
   var gone = 0;
 
   var screens = {};
-  ["splash","cutscene","tasklist","taskdetail","wheel","catchgame","beatgame","reward","admin"].forEach(function(id){
+  ["splash","cutscene","tasklist","taskdetail","wheel","catchgame","beatgame","matchgame","reward","admin"].forEach(function(id){
     screens[id] = document.getElementById(id);
   });
 
@@ -1096,7 +1178,11 @@
       stopBeatGame();
     }
 
-    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel" && id !== "catchgame" && id !== "beatgame");
+    if(fromId === "matchgame" && id !== "matchgame"){
+      stopMatchGame();
+    }
+
+    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel" && id !== "catchgame" && id !== "beatgame" && id !== "matchgame");
     updateNavActive(id);
 
     // clean up any screen left mid-transition by a superseded navigation
@@ -2238,6 +2324,144 @@
     completeActiveTask();
   }
 
+  // ---------- PUMPKIN MATCH (memory card game) ----------
+  var MATCH_ICONS = ['🎃','👻','🦇','🕷️','🍬','🌙'];
+
+  var matchBoardEl = null;
+  var matchCards = [];
+  var matchPairsFound = 0, matchMoves = 0;
+  var matchFirstPick = null, matchSecondPick = null;
+  var matchLocked = false;
+  var matchPhase = "study"; // study | playing | done
+  var matchStartTime = 0;
+  var matchFlipTimeout = null;
+
+  function matchShuffledDeck(){
+    var deck = MATCH_ICONS.concat(MATCH_ICONS).map(function(icon, i){ return { icon: icon, id: i }; });
+    for(var i = deck.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = deck[i]; deck[i] = deck[j]; deck[j] = tmp;
+    }
+    return deck;
+  }
+
+  function matchBuildBoard(){
+    matchBoardEl.innerHTML = "";
+    matchCards = [];
+    var deck = matchShuffledDeck();
+    deck.forEach(function(d){
+      var slot = document.createElement("div");
+      slot.className = "match-cardslot";
+      var c = document.createElement("div");
+      c.className = "match-card";
+      c.innerHTML =
+        '<div class="match-card-face match-card-front">' + d.icon + '</div>' +
+        '<div class="match-card-face match-card-back"></div>';
+      c.addEventListener("click", function(){ onMatchCardClick(c); });
+      slot.appendChild(c);
+      matchBoardEl.appendChild(slot);
+      matchCards.push({ el: c, icon: d.icon, matched: false });
+    });
+  }
+
+  function matchStartStudyPhase(){
+    matchPhase = "study";
+    matchPairsFound = 0; matchMoves = 0; matchFirstPick = null; matchSecondPick = null; matchLocked = true;
+    document.getElementById("matchPairsPill").textContent = "🎃 0/6 pairs";
+    document.getElementById("matchMovesPill").textContent = "🔄 0 moves";
+    document.getElementById("matchSubText").textContent = "Study the board — matching starts when you're ready.";
+    document.getElementById("matchStudyBadge").style.display = "block";
+    document.getElementById("matchStartBtn").style.display = "block";
+    document.getElementById("matchEndOverlay").classList.remove("show");
+    matchBuildBoard();
+  }
+
+  function matchBeginMatching(){
+    matchPhase = "playing";
+    matchLocked = false;
+    document.getElementById("matchStudyBadge").style.display = "none";
+    document.getElementById("matchStartBtn").style.display = "none";
+    document.getElementById("matchSubText").textContent = "Tap two cards to find a matching pair.";
+    matchStartTime = Date.now();
+    matchCards.forEach(function(c){ c.el.classList.add("flipped"); });
+  }
+
+  function onMatchCardClick(c){
+    if(matchPhase !== "playing" || matchLocked) return;
+    var cardObj = matchCards.find(function(x){ return x.el === c; });
+    if(cardObj.matched) return;
+    if(matchFirstPick && matchFirstPick.el === c) return;
+
+    c.classList.remove("flipped");
+    c.classList.add("pulse");
+    setTimeout(function(){ c.classList.remove("pulse"); }, 400);
+
+    if(!matchFirstPick){
+      matchFirstPick = cardObj;
+      return;
+    }
+    matchSecondPick = cardObj;
+    matchMoves++;
+    document.getElementById("matchMovesPill").textContent = "🔄 " + matchMoves + " move" + (matchMoves === 1 ? "" : "s");
+    matchLocked = true;
+
+    if(matchFirstPick.icon === matchSecondPick.icon){
+      matchFirstPick.matched = true; matchSecondPick.matched = true;
+      matchFirstPick.el.classList.add("matched");
+      matchSecondPick.el.classList.add("matched");
+      matchPairsFound++;
+      document.getElementById("matchPairsPill").textContent = "🎃 " + matchPairsFound + "/6 pairs";
+      matchFirstPick = null; matchSecondPick = null; matchLocked = false;
+      if(matchPairsFound === 6){
+        setTimeout(matchShowEnd, 400);
+      }
+    } else {
+      matchFirstPick.el.classList.add("shake");
+      matchSecondPick.el.classList.add("shake");
+      var fp = matchFirstPick, sp = matchSecondPick;
+      matchFlipTimeout = setTimeout(function(){
+        fp.el.classList.remove("shake");
+        sp.el.classList.remove("shake");
+        fp.el.classList.add("flipped");
+        sp.el.classList.add("flipped");
+        matchFirstPick = null; matchSecondPick = null; matchLocked = false;
+      }, 750);
+    }
+  }
+
+  function matchShowEnd(){
+    matchPhase = "done";
+    var elapsed = Math.round((Date.now() - matchStartTime) / 1000);
+    document.getElementById("matchStatMoves").textContent = matchMoves;
+    document.getElementById("matchStatTime").textContent = elapsed + "s";
+    document.getElementById("matchSubText").textContent = "All pairs found!";
+    spawnConfetti(40);
+    document.getElementById("matchEndOverlay").classList.add("show");
+  }
+
+  function openMatchGame(){
+    matchBoardEl = document.getElementById("matchBoard");
+    show("matchgame", "forward");
+    matchStartStudyPhase();
+  }
+
+  function stopMatchGame(){
+    clearTimeout(matchFlipTimeout);
+    matchLocked = true;
+  }
+
+  function exitMatchGame(){
+    stopMatchGame();
+    document.getElementById("matchEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
+  function closeMatchGame(){
+    stopMatchGame();
+    document.getElementById("matchEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
   // ---------- REWARD ----------
   function goToReward(direction){
     var reward = state.rewards && state.rewards.length
@@ -2590,13 +2814,16 @@
       case "open-catch": openCatch(); break;
       case "catch-start": startCatchGame(); break;
       case "catch-continue": closeCatchGame(); break;
-      case "skip-games": completeActiveTask(); break;
       case "exit-wheel": exitWheelGame(); break;
       case "exit-catch": exitCatchGame(); break;
       case "open-beat": openBeatGame(); break;
       case "beat-start": beatStartCountdown(); break;
       case "beat-continue": closeBeatGame(); break;
       case "exit-beat": exitBeatGame(); break;
+      case "open-match": openMatchGame(); break;
+      case "match-start": matchBeginMatching(); break;
+      case "match-continue": closeMatchGame(); break;
+      case "exit-match": exitMatchGame(); break;
       case "toggle-mute": toggleMute(); break;
       case "nav-home": activeTaskId = null; show("splash", "back"); break;
       case "nav-chores": activeTaskId = null; show("tasklist", "back"); break;
