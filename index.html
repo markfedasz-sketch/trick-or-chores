@@ -489,7 +489,37 @@
   #admin{ gap: 14px; }
   .admin-scroll{ flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling: touch; display:flex; flex-direction:column; gap:14px; }
   .field-label{ font-size: 13px; color: var(--bone-dim); font-weight: 700; margin-bottom: 6px; display:block; }
+  .field-label-row{ display:flex; align-items:center; gap:6px; margin-bottom: 10px; }
+  .field-label-row .field-label{ margin-bottom:0; }
   .field-hint{ font-size: 12.5px; color: var(--bone-dim); opacity:0.85; line-height:1.4; margin: -2px 0 10px; }
+  .info-btn{
+    width:18px; height:18px; border-radius:50%; border:1px solid var(--bone-dim); background:none;
+    color: var(--bone-dim); font-size: 12px; line-height:1; display:flex; align-items:center; justify-content:center;
+    padding:0; cursor:pointer; opacity:0.85;
+  }
+  .info-btn:active{ transform: scale(0.92); }
+
+  .info-overlay{
+    position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    padding:28px; background:rgba(11,17,22,0.7); opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .info-overlay.show{ opacity:1; pointer-events:auto; }
+  .info-card{
+    background:var(--panel); border-radius:22px; padding:26px 22px; text-align:center;
+    border:1px solid rgba(124,252,110,0.25); box-shadow:0 0 30px rgba(124,252,110,0.12);
+    transform:translateY(16px) scale(0.96); opacity:0; transition: transform .3s cubic-bezier(.2,.8,.3,1.2), opacity .3s ease;
+    max-width: 300px;
+  }
+  .info-overlay.show .info-card{ transform:translateY(0) scale(1); opacity:1; }
+  .info-icon{ font-size:34px; }
+  .info-label{ font-size:12px; letter-spacing:1.2px; text-transform:uppercase; color:var(--slime); font-weight:800; margin-top:6px; }
+  .info-text{ font-size:14.5px; font-weight:600; color:var(--bone); margin-top:10px; line-height:1.5; }
+  .info-close{
+    margin-top:18px; width:100%; border:none; border-radius:999px; padding:13px;
+    background: linear-gradient(180deg, #FF9A44, var(--pumpkin)); color:var(--bg);
+    font-weight:800; font-size:15px; cursor:pointer;
+  }
+  .info-close:active{ transform:scale(0.97); }
   .input{
     width:100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
     color: var(--bone); border-radius: 999px; padding: 12px 18px; font-size: 16px; font-family: inherit;
@@ -660,14 +690,25 @@
       </div>
 
       <div class="admin-section">
-        <span class="field-label">Rewards</span>
-        <p class="field-hint">This is a reward pool — one gets picked at random when all chores are done. We suggest adding at least two, so the reveal is an actual surprise instead of a foregone conclusion.</p>
+        <div class="field-label-row">
+          <span class="field-label">Rewards</span>
+          <button class="info-btn" type="button" data-action="open-reward-info" aria-label="What is the reward pool?">ⓘ</button>
+        </div>
         <div id="adminRewardRows"></div>
         <button class="add-row" data-action="admin-add-reward">+ Add a reward</button>
       </div>
 
       <div class="save-bar">
         <button class="btn-save" data-action="admin-save">Save changes</button>
+      </div>
+    </div>
+
+    <div class="info-overlay" id="rewardInfoOverlay">
+      <div class="info-card">
+        <div class="info-icon">🎁</div>
+        <div class="info-label">Reward Pool</div>
+        <p class="info-text">This is a reward pool — one gets picked at random when all chores are done. We suggest adding at least two, so the reveal is an actual surprise instead of a foregone conclusion.</p>
+        <button class="info-close" data-action="close-reward-info">Got it</button>
       </div>
     </div>
   </section>
@@ -1771,6 +1812,8 @@
       case "admin-add-task": addAdminTask(); break;
       case "admin-add-reward": addAdminReward(); break;
       case "admin-save": saveAdmin(); break;
+      case "open-reward-info": document.getElementById("rewardInfoOverlay").classList.add("show"); break;
+      case "close-reward-info": document.getElementById("rewardInfoOverlay").classList.remove("show"); break;
       case "task-done": spawnConfetti(24); completeActiveTask(); break;
       case "open-wheel": openWheel(); break;
       case "spin-wheel": spinWheel(); break;
