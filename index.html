@@ -289,13 +289,13 @@
 
   /* ---------- optional mini-game teasers on the "I did it" page ---------- */
   .teaser-row{ display:flex; flex-direction:row; align-items:center; justify-content:center; gap:14px; margin-top:26px; }
-  .wheel-teaser, .catch-teaser, .ghost-teaser, .beat-teaser{
+  .wheel-teaser, .catch-teaser, .ghost-teaser, .beat-teaser, .porch-teaser{
     width:52px; height:52px; flex-shrink:0; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     background:var(--panel); border:1px dashed rgba(255,208,138,0.5);
     cursor:pointer; padding:0; margin-top:0;
   }
-  .wheel-teaser:active, .catch-teaser:active, .ghost-teaser:active, .beat-teaser:active{ transform:scale(0.93); }
+  .wheel-teaser:active, .catch-teaser:active, .ghost-teaser:active, .beat-teaser:active, .porch-teaser:active{ transform:scale(0.93); }
   .wheel-teaser-icon{ width:28px; height:28px; flex-shrink:0; }
   .mini-wheel{
     width:100%; height:100%; border-radius:50%; position:relative;
@@ -581,6 +581,168 @@
   }
   .match-start-btn:active{ transform:scale(0.97); }
 
+  .porch-teaser{ border-color: rgba(182,255,60,0.4); }
+  .porch-teaser-icon{ width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:30px; line-height:1; }
+
+  /* ---------- PORCH PIRATE (candy whack-a-mole) ---------- */
+  /* Deliberately its own palette — a toxic-neon arcade-cabinet look instead of the
+     softer pumpkin-orange used elsewhere, scoped locally so it doesn't leak. */
+  .porch-screen{
+    align-items:stretch; justify-content:flex-start; text-align:center; gap:8px;
+    --p-void:#0b0714; --p-dusk1:#1c0f33; --p-dusk2:#3a1652; --p-moon:#ffe9b8;
+    --p-acid:#b6ff3c; --p-hot:#ff2e63; --p-candy:#ff7a1a; --p-porch:#ffd166;
+    --p-ink:#f5f0ff; --p-ink-dim:#b7a8d9;
+  }
+  .porch-screen .wheel-title{
+    font-size:22px; text-transform:uppercase; letter-spacing:-0.01em;
+    text-shadow: 2px 0 0 rgba(255,46,99,0.6), -2px 0 0 rgba(182,255,60,0.45);
+  }
+  .porch-stage{
+    position:relative; flex:1; min-height:0; margin:4px -18px 0; overflow:hidden;
+    background:
+      radial-gradient(160px 120px at 76% 6%, rgba(255,233,184,0.24), transparent 70%),
+      linear-gradient(180deg, var(--p-void) 0%, var(--p-dusk1) 42%, var(--p-dusk2) 78%, #4a1d63 100%);
+    border-top:1px solid rgba(255,255,255,0.08); border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .porch-moon{
+    position:absolute; top:10px; right:14px; width:22px; height:22px; border-radius:50%; z-index:2;
+    background: radial-gradient(circle at 35% 32%, #fff6de, var(--p-moon) 60%, #e7c988 100%);
+    box-shadow: 0 0 14px 3px rgba(255,233,184,0.28);
+  }
+  .porch-star{ position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; opacity:0.65; animation: porchTwinkle 2.6s ease-in-out infinite; }
+  @keyframes porchTwinkle{ 0%,100%{opacity:0.2;} 50%{opacity:0.8;} }
+  .porch-bat{ position:absolute; font-size:11px; opacity:0.55; filter: drop-shadow(0 0 3px rgba(0,0,0,0.6)); animation: porchBatDrift 9s linear infinite; }
+  @keyframes porchBatDrift{ 0%{ transform:translateX(-20px) translateY(0);} 50%{ transform:translateX(160px) translateY(-14px);} 100%{ transform:translateX(340px) translateY(4px);} }
+
+  .porch-garland{ position:absolute; left:0; right:0; top:64px; z-index:3; pointer-events:none; width:100%; height:34px; }
+  .porch-garland .wire{ fill:none; stroke:rgba(182,255,60,0.15); stroke-width:1.5; }
+  .porch-garland .bulb{ animation: porchGarlandGlow 2.4s ease-in-out infinite; filter: drop-shadow(0 0 2.5px rgba(255,255,255,0.6)); }
+  .porch-garland .bulb:nth-child(3n){ animation-delay:.5s; }
+  .porch-garland .bulb:nth-child(3n+1){ animation-delay:1.1s; }
+  @keyframes porchGarlandGlow{ 0%,100%{ opacity:0.55; } 50%{ opacity:1; } }
+
+  .porch-fog{
+    position:absolute; left:-10%; width:120%; height:34px; z-index:4; pointer-events:none;
+    background: radial-gradient(60% 100% at 50% 50%, rgba(182,255,60,0.06), transparent 70%);
+    filter: blur(2px); animation: porchFogDrift 14s ease-in-out infinite;
+  }
+  @keyframes porchFogDrift{ 0%,100%{ transform:translateX(0); } 50%{ transform:translateX(18px); } }
+
+  .porch-hud{ position:absolute; top:8px; left:8px; right:8px; z-index:10; display:flex; align-items:center; gap:8px; }
+  .porch-hud-chip{
+    background:rgba(255,255,255,0.05); border:1px solid rgba(182,255,60,0.25); border-radius:8px;
+    padding:4px 9px; display:flex; flex-direction:column; align-items:flex-start; min-width:44px;
+  }
+  .porch-hud-chip .lbl{ font-size:7.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--p-ink-dim); font-weight:800; }
+  .porch-hud-chip .val{ font-size:15px; font-weight:900; color:var(--p-acid); font-variant-numeric:tabular-nums; text-shadow:0 0 8px rgba(182,255,60,0.5); line-height:1.15; }
+  .porch-combo-chip{ border-color:rgba(255,122,26,0.3); align-items:flex-end; }
+  .porch-combo-chip .val{ color:var(--p-candy); text-shadow:0 0 8px rgba(255,122,26,0.5); }
+  .porch-combo-chip.pulse{ animation:porchComboPop .32s ease; }
+  @keyframes porchComboPop{ 0%{transform:scale(1);} 45%{transform:scale(1.28) rotate(-3deg);} 100%{transform:scale(1);} }
+
+  .porch-timer-track{ flex:1; height:8px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.08); }
+  .porch-timer-fill{ height:100%; width:100%; background: linear-gradient(90deg, var(--p-hot), var(--p-candy), var(--p-porch)); transition: width 1s linear; }
+
+  .porch-street{
+    position:absolute; left:0; right:0; bottom:34px; z-index:5;
+    display:grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows:auto;
+    align-items:end; row-gap:14px; column-gap:0; padding:0 4px;
+  }
+  .porch-ground{
+    position:absolute; left:0; right:0; bottom:0; height:34px; z-index:6;
+    background: linear-gradient(180deg, #1a0f2c, #0c0716);
+    border-top:1px solid rgba(182,255,60,0.12);
+  }
+  .porch-ground::before{
+    content:""; position:absolute; top:5px; left:0; right:0; height:1.5px;
+    background: repeating-linear-gradient(90deg, rgba(255,214,102,0.35) 0 10px, transparent 10px 22px);
+  }
+
+  .porch-house{ position:relative; display:flex; flex-direction:column; align-items:center; }
+  .porch-roof{ width:76%; aspect-ratio:2/1; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+  .porch-body{ width:88%; height:52px; border-radius:3px 3px 0 0; position:relative; box-shadow: inset 0 -6px 10px rgba(0,0,0,0.3); }
+  .porch-light{ position:absolute; top:6px; left:50%; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:#3a3450; transition: all .2s ease; }
+  .porch-house.active .porch-light{ background: var(--p-porch); box-shadow:0 0 12px 4px var(--p-porch); }
+  .porch-doorway{
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:24px; height:30px; border-radius:3px 3px 0 0; background:#0a0612; overflow:hidden;
+    perspective:100px; box-shadow: inset 0 3px 6px rgba(0,0,0,0.6);
+  }
+  .porch-door{
+    position:absolute; inset:0; border-radius:3px 3px 0 0;
+    transform-origin: left center; transition: transform .22s cubic-bezier(.3,.7,.4,1.3);
+    box-shadow: inset 2px 0 3px rgba(0,0,0,0.35);
+  }
+  .porch-door::after{ content:""; position:absolute; top:50%; right:3px; width:2px; height:2px; border-radius:50%; background:rgba(255,255,255,0.5); transform:translateY(-50%); }
+  .porch-house.active .porch-door{ transform: rotateY(-108deg); }
+
+  .porch-candy-spot{
+    position:absolute; left:50%; bottom:2px; z-index:9;
+    width:38px; height:38px; transform:translate(-50%, 10px) scale(0.45);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition: transform .22s cubic-bezier(.3,.7,.3,1.4), opacity .18s ease;
+  }
+  .porch-house.item-visible .porch-candy-spot{ opacity:1; transform:translate(-50%, 0) scale(1); pointer-events:auto; cursor:pointer; }
+  .porch-house.item-pop .porch-candy-spot{ transform:translate(-50%, -16px) scale(1.55); opacity:0; }
+  .porch-candy-glow{ position:absolute; inset:0; border-radius:50%; background: radial-gradient(circle, rgba(255,209,102,0.55) 0%, rgba(255,209,102,0.18) 55%, rgba(255,209,102,0) 75%); }
+  .porch-candy-icon{ position:relative; font-size:27px; line-height:1; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.55)); }
+
+  .porch-plusfloat{
+    position:absolute; left:50%; bottom:42px; transform:translateX(-50%); z-index:15;
+    font-weight:900; font-size:13px; pointer-events:none; animation: porchFloatUp .6s ease forwards;
+  }
+  .porch-plusfloat.treat{ color: var(--p-acid); text-shadow:0 0 8px rgba(182,255,60,0.6); }
+  .porch-plusfloat.trick{ color: var(--p-hot); text-shadow:0 0 8px rgba(255,46,99,0.6); }
+  @keyframes porchFloatUp{ 0%{ transform:translate(-50%,0); opacity:1; } 100%{ transform:translate(-50%,-26px); opacity:0; } }
+
+  .porch-flash{ position:absolute; inset:0; background:var(--p-hot); opacity:0; pointer-events:none; z-index:12; mix-blend-mode:screen; }
+  .porch-flash.show{ animation: porchFlashHit .28s ease; }
+  @keyframes porchFlashHit{ 0%{opacity:0.5;} 100%{opacity:0;} }
+
+  .porch-overlay{
+    position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    padding:20px; background:rgba(4,2,9,0.82); opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .porch-overlay.show{ opacity:1; pointer-events:auto; }
+  .porch-card{
+    width:100%; text-align:center; background: linear-gradient(180deg, #1c1130, #120a20);
+    border-radius:16px; padding:2px; transform:translateY(14px) scale(0.96); opacity:0;
+    transition: transform .3s cubic-bezier(.2,.8,.3,1.2), opacity .3s ease;
+    box-shadow: 0 0 0 1px rgba(182,255,60,0.25), 0 20px 50px rgba(0,0,0,0.5);
+  }
+  .porch-overlay.show .porch-card{ transform:translateY(0) scale(1); opacity:1; }
+  .porch-card-inner{ border:1px dashed rgba(182,255,60,0.3); border-radius:14px; padding:20px 16px; }
+  .porch-card-title{
+    font-size:22px; font-weight:900; letter-spacing:-0.02em; text-transform:uppercase; margin:0 0 4px;
+    color:var(--p-ink); text-shadow: 2px 0 0 rgba(255,46,99,0.7), -2px 0 0 rgba(182,255,60,0.5);
+  }
+  .porch-card-eyebrow{ font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--p-candy); font-weight:800; margin-bottom:8px; }
+  .porch-card-sub{ font-size:12.5px; color:var(--p-ink-dim); line-height:1.55; max-width:230px; margin:0 auto 14px; }
+  .porch-legend{ display:flex; justify-content:center; gap:18px; margin-bottom:16px; }
+  .porch-legend-item{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:9.5px; color:var(--p-ink-dim); font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .porch-legend-item .ic{ font-size:22px; }
+  .porch-legend-item.treat .ic{ filter:drop-shadow(0 0 6px rgba(182,255,60,0.5)); }
+  .porch-legend-item.trick .ic{ filter:drop-shadow(0 0 6px rgba(255,46,99,0.5)); }
+  .porch-btn{
+    width:100%; border:none; border-radius:10px; padding:13px; cursor:pointer;
+    background: linear-gradient(180deg, var(--p-acid), #7fcc1e); color:#0b1400;
+    font-weight:900; font-size:14px; text-transform:uppercase; letter-spacing:.03em;
+    box-shadow: 0 6px 0 #5a9411, 0 10px 18px rgba(182,255,60,0.25);
+  }
+  .porch-btn:active{ transform:translateY(4px); box-shadow: 0 2px 0 #5a9411; }
+
+  .porch-grade-badge{
+    width:56px; height:56px; border-radius:50%; margin:4px auto 8px; display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:900; color:#0b1400;
+    background: conic-gradient(var(--p-acid), var(--p-porch), var(--p-candy), var(--p-acid));
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.06), 0 8px 20px rgba(182,255,60,0.25);
+  }
+  .porch-stat-row{ display:flex; justify-content:center; gap:16px; margin:2px 0 14px; }
+  .porch-stat{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .porch-stat b{ font-size:18px; color:var(--p-ink); font-variant-numeric:tabular-nums; }
+  .porch-stat span{ font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--p-ink-dim); }
+
   /* ---------- REWARD ---------- */
   #reward{ align-items:center; justify-content:center; text-align:center; gap: 18px; }
   #reward h2{ font-size: 34px; }
@@ -852,6 +1014,9 @@
       <div class="beat-teaser" data-action="open-beat" aria-label="Tap to the beat mini-game">
         <div class="beat-teaser-icon">🥁</div>
       </div>
+      <div class="porch-teaser" data-action="open-porch" aria-label="Raid porches for candy mini-game">
+        <div class="porch-teaser-icon">🍬</div>
+      </div>
       <div class="ghost-teaser" data-action="open-match" aria-label="Play the pumpkin matching mini-game">
         <div class="ghost-teaser-icon">👻</div>
       </div>
@@ -1019,6 +1184,70 @@
     </div>
   </section>
 
+  <!-- PORCH PIRATE (candy whack-a-mole) -->
+  <section id="porchgame" class="screen porch-screen">
+    <button class="mini-skip-btn" data-action="exit-porch" aria-label="Go back and continue with chores">⬅️</button>
+    <div class="wheel-eyebrow">Nice work!</div>
+    <h2 class="wheel-title">Porch Pirate</h2>
+    <p class="wheel-sub">Tap the candy before the door swings shut. Leave the tricks alone.</p>
+
+    <div class="porch-stage" id="porchStage">
+      <div class="porch-moon"></div>
+      <div id="porchStarLayer"></div>
+      <div class="porch-bat" style="top:34%;">🦇</div>
+      <div class="porch-bat" style="top:44%; animation-duration:12s; animation-delay:-4s; font-size:9px;">🦇</div>
+      <div class="porch-fog" style="top:39%;"></div>
+
+      <svg class="porch-garland" viewBox="0 0 300 42" preserveAspectRatio="none">
+        <path class="wire" d="M0,6 Q150,44 300,6"></path>
+        <circle class="bulb" cx="24" cy="10.5" r="3.2" fill="var(--p-acid)"></circle>
+        <circle class="bulb" cx="70" cy="21" r="3.2" fill="var(--p-hot)"></circle>
+        <circle class="bulb" cx="116" cy="29" r="3.2" fill="var(--p-porch)"></circle>
+        <circle class="bulb" cx="150" cy="31.5" r="3.2" fill="var(--p-candy)"></circle>
+        <circle class="bulb" cx="184" cy="29" r="3.2" fill="var(--p-acid)"></circle>
+        <circle class="bulb" cx="230" cy="21" r="3.2" fill="var(--p-hot)"></circle>
+        <circle class="bulb" cx="276" cy="10.5" r="3.2" fill="var(--p-porch)"></circle>
+      </svg>
+
+      <div class="porch-hud">
+        <div class="porch-hud-chip"><span class="lbl">Candy</span><span class="val" id="porchScoreVal">0</span></div>
+        <div class="porch-timer-track"><div class="porch-timer-fill" id="porchTimerFill"></div></div>
+        <div class="porch-hud-chip porch-combo-chip" id="porchComboChip"><span class="lbl">Streak</span><span class="val" id="porchComboVal">x1</span></div>
+      </div>
+
+      <div class="porch-street" id="porchStreet"></div>
+      <div class="porch-ground"></div>
+      <div class="porch-flash" id="porchFlash"></div>
+
+      <div class="porch-overlay show" id="porchStartOverlay">
+        <div class="porch-card"><div class="porch-card-inner">
+          <div class="porch-card-eyebrow">Mini-Game</div>
+          <div class="porch-card-title">Porch Pirate</div>
+          <p class="porch-card-sub">30 seconds to raid every porch on the block. Tap treats, dodge tricks.</p>
+          <div class="porch-legend">
+            <div class="porch-legend-item treat"><span class="ic">🍬</span>Treat = points</div>
+            <div class="porch-legend-item trick"><span class="ic">🦇</span>Trick = don't tap</div>
+          </div>
+          <button class="porch-btn" data-action="porch-start">Start Raid</button>
+        </div></div>
+      </div>
+
+      <div class="porch-overlay" id="porchEndOverlay">
+        <div class="porch-card"><div class="porch-card-inner">
+          <div class="porch-card-eyebrow">Raid Complete</div>
+          <div class="porch-card-title" id="porchEndTitle" style="font-size:18px;">Nice haul!</div>
+          <div class="porch-grade-badge" id="porchGradeBadge">A</div>
+          <div class="porch-stat-row">
+            <div class="porch-stat"><b id="porchStatCandy">0</b><span>Candy</span></div>
+            <div class="porch-stat"><b id="porchStatCombo">x1</b><span>Best Streak</span></div>
+            <div class="porch-stat"><b id="porchStatTricks">0</b><span>Tricked</span></div>
+          </div>
+          <button class="porch-btn" data-action="porch-continue">Continue →</button>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
   <!-- REWARD -->
   <section id="reward" class="screen">
     <div style="font-size:56px;">🏆</div>
@@ -1151,7 +1380,7 @@
   var gone = 0;
 
   var screens = {};
-  ["splash","cutscene","tasklist","taskdetail","wheel","catchgame","beatgame","matchgame","reward","admin"].forEach(function(id){
+  ["splash","cutscene","tasklist","taskdetail","wheel","catchgame","beatgame","matchgame","porchgame","reward","admin"].forEach(function(id){
     screens[id] = document.getElementById(id);
   });
 
@@ -1186,7 +1415,11 @@
       stopMatchGame();
     }
 
-    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel" && id !== "catchgame" && id !== "beatgame" && id !== "matchgame");
+    if(fromId === "porchgame" && id !== "porchgame"){
+      stopPorchGame();
+    }
+
+    document.body.classList.toggle("has-nav", id !== "splash" && id !== "cutscene" && id !== "wheel" && id !== "catchgame" && id !== "beatgame" && id !== "matchgame" && id !== "porchgame");
     updateNavActive(id);
 
     // clean up any screen left mid-transition by a superseded navigation
@@ -2477,6 +2710,238 @@
     completeActiveTask();
   }
 
+  // ---------- PORCH PIRATE (candy whack-a-mole) ----------
+  var PORCH_ROUND_SECONDS = 30;
+  var PORCH_HOUSE_COUNT = 6;
+  var PORCH_TREAT_ICONS = ['🍬','🍭','🍫','🧁'];
+  var PORCH_JACKPOT_ICON = '🎃';
+  var PORCH_TRICK_ICONS = ['🦇','🕷️'];
+  var PORCH_JACKPOT_CHANCE = 0.1;
+  var PORCH_TRICK_CHANCE = 0.22;
+  var PORCH_HOUSE_HUES = [
+    { roof:'#3a1652', body:'#241238' },
+    { roof:'#4a1d63', body:'#2c1440' },
+    { roof:'#331253', body:'#20103a' },
+    { roof:'#4a1d63', body:'#2c1440' },
+    { roof:'#3a1652', body:'#241238' },
+    { roof:'#331253', body:'#20103a' },
+  ];
+
+  var porchHouses = [];
+  var porchScore = 0, porchCombo = 0, porchMaxCombo = 0, porchTricked = 0, porchCandyCount = 0;
+  var porchRunning = false;
+  var porchSpawnTimer = null;
+  var porchTickTimer = null;
+  var porchSecondsLeft = PORCH_ROUND_SECONDS;
+
+  function porchMakeStars(){
+    var layer = document.getElementById("porchStarLayer");
+    layer.innerHTML = "";
+    for(var i = 0; i < 18; i++){
+      var s = document.createElement("div");
+      s.className = "porch-star";
+      s.style.left = (Math.random() * 100) + "%";
+      s.style.top = (Math.random() * 32) + "%";
+      s.style.animationDelay = (Math.random() * 2.4) + "s";
+      layer.appendChild(s);
+    }
+  }
+
+  function porchBuildStreet(){
+    var streetEl = document.getElementById("porchStreet");
+    streetEl.innerHTML = "";
+    porchHouses = [];
+    for(var i = 0; i < PORCH_HOUSE_COUNT; i++){
+      (function(i){
+        var hue = PORCH_HOUSE_HUES[i];
+        var h = document.createElement("div");
+        h.className = "porch-house";
+        h.innerHTML =
+          '<div class="porch-roof" style="background:' + hue.roof + '"></div>' +
+          '<div class="porch-body" style="background:' + hue.body + '">' +
+            '<div class="porch-light"></div>' +
+            '<div class="porch-doorway"><div class="porch-door" style="background:' + hue.roof + '"></div></div>' +
+            '<div class="porch-candy-spot"><div class="porch-candy-glow"></div><div class="porch-candy-icon"></div></div>' +
+          '</div>';
+        var itemEl = h.querySelector(".porch-candy-icon");
+        var tapEl = h.querySelector(".porch-candy-spot");
+        tapEl.addEventListener("pointerdown", function(e){ e.stopPropagation(); onPorchTapItem(i); });
+        streetEl.appendChild(h);
+        porchHouses.push({ el: h, itemEl: itemEl, open: false, kind: null, closeTimer: null });
+      })(i);
+    }
+  }
+
+  function porchResetGame(){
+    clearTimeout(porchSpawnTimer); clearInterval(porchTickTimer);
+    porchHouses.forEach(function(h){ porchCloseHouse(h, false); });
+    porchScore = 0; porchCombo = 0; porchMaxCombo = 0; porchTricked = 0; porchCandyCount = 0; porchSecondsLeft = PORCH_ROUND_SECONDS;
+    document.getElementById("porchScoreVal").textContent = "0";
+    document.getElementById("porchComboVal").textContent = "x1";
+    document.getElementById("porchTimerFill").style.width = "100%";
+    document.getElementById("porchEndOverlay").classList.remove("show");
+  }
+
+  function porchOpenHouse(h, kind){
+    h.open = true; h.kind = kind;
+    h.el.classList.add("active");
+    var icon;
+    if(kind === "jackpot") icon = PORCH_JACKPOT_ICON;
+    else if(kind === "trick") icon = PORCH_TRICK_ICONS[Math.floor(Math.random() * PORCH_TRICK_ICONS.length)];
+    else icon = PORCH_TREAT_ICONS[Math.floor(Math.random() * PORCH_TREAT_ICONS.length)];
+    h.itemEl.textContent = icon;
+    requestAnimationFrame(function(){ h.el.classList.add("item-visible"); });
+
+    var windowMs = kind === "jackpot" ? 850 : (900 - porchSecondsLeft * 3);
+    h.closeTimer = setTimeout(function(){
+      if(h.open && h.kind !== "trick" && !h.el.classList.contains("item-pop")){
+        porchCombo = 0;
+        document.getElementById("porchComboVal").textContent = "x1";
+      }
+      porchCloseHouse(h, false);
+    }, Math.max(550, windowMs));
+  }
+
+  function porchCloseHouse(h, popped){
+    if(!h) return;
+    clearTimeout(h.closeTimer);
+    h.el.classList.remove("item-visible");
+    if(popped){ h.el.classList.add("item-pop"); }
+    h.el.classList.remove("active");
+    h.open = false;
+    setTimeout(function(){ h.el.classList.remove("item-pop"); h.itemEl.textContent = ""; }, 220);
+  }
+
+  function porchComboMultiplier(){
+    if(porchCombo >= 9) return 4;
+    if(porchCombo >= 6) return 3;
+    if(porchCombo >= 3) return 2;
+    return 1;
+  }
+
+  function porchMaxComboMultiplier(){
+    if(porchMaxCombo >= 9) return 4;
+    if(porchMaxCombo >= 6) return 3;
+    if(porchMaxCombo >= 3) return 2;
+    return 1;
+  }
+
+  function porchPopFloat(h, text, cls){
+    var f = document.createElement("div");
+    f.className = "porch-plusfloat " + cls;
+    f.textContent = text;
+    h.el.appendChild(f);
+    setTimeout(function(){ f.remove(); }, 650);
+  }
+
+  function onPorchTapItem(i){
+    if(!porchRunning) return;
+    var h = porchHouses[i];
+    if(!h.open) return;
+
+    if(h.kind === "trick"){
+      porchCombo = 0;
+      porchTricked++;
+      document.getElementById("porchComboVal").textContent = "x1";
+      porchPopFloat(h, "TRICKED!", "trick");
+      var flash = document.getElementById("porchFlash");
+      flash.classList.remove("show"); void flash.offsetWidth; flash.classList.add("show");
+      porchCloseHouse(h, true);
+      return;
+    }
+
+    var base = h.kind === "jackpot" ? 50 : 10;
+    porchCombo++;
+    porchMaxCombo = Math.max(porchMaxCombo, porchCombo);
+    var mult = porchComboMultiplier();
+    var gained = base * mult;
+    porchScore += gained;
+    porchCandyCount++;
+    document.getElementById("porchScoreVal").textContent = porchScore;
+    document.getElementById("porchComboVal").textContent = "x" + mult;
+    var comboChip = document.getElementById("porchComboChip");
+    comboChip.classList.remove("pulse"); void comboChip.offsetWidth; comboChip.classList.add("pulse");
+    porchPopFloat(h, "+" + gained, "treat");
+    porchCloseHouse(h, true);
+  }
+
+  function porchScheduleSpawn(){
+    if(!porchRunning) return;
+    var delay = 420 + Math.random() * 380;
+    porchSpawnTimer = setTimeout(function(){
+      if(!porchRunning) return;
+      var closed = porchHouses.filter(function(h){ return !h.open; });
+      if(closed.length){
+        var h = closed[Math.floor(Math.random() * closed.length)];
+        var roll = Math.random();
+        var kind = roll < PORCH_TRICK_CHANCE ? "trick" : (roll < PORCH_TRICK_CHANCE + PORCH_JACKPOT_CHANCE ? "jackpot" : "treat");
+        porchOpenHouse(h, kind);
+      }
+      porchScheduleSpawn();
+    }, delay);
+  }
+
+  function porchStartGame(){
+    porchResetGame();
+    document.getElementById("porchStartOverlay").classList.remove("show");
+    porchRunning = true;
+    porchScheduleSpawn();
+    porchTickTimer = setInterval(function(){
+      porchSecondsLeft--;
+      document.getElementById("porchTimerFill").style.width = Math.max(0, (porchSecondsLeft / PORCH_ROUND_SECONDS) * 100) + "%";
+      if(porchSecondsLeft <= 0) porchFinishGame();
+    }, 1000);
+  }
+
+  function porchFinishGame(){
+    porchRunning = false;
+    clearTimeout(porchSpawnTimer); clearInterval(porchTickTimer);
+    porchHouses.forEach(function(h){ porchCloseHouse(h, false); });
+
+    var grade = "D";
+    if(porchScore >= 500) grade = "S";
+    else if(porchScore >= 340) grade = "A";
+    else if(porchScore >= 200) grade = "B";
+    else if(porchScore >= 90) grade = "C";
+
+    document.getElementById("porchGradeBadge").textContent = grade;
+    document.getElementById("porchStatCandy").textContent = porchCandyCount;
+    document.getElementById("porchStatCombo").textContent = "x" + porchMaxComboMultiplier();
+    document.getElementById("porchStatTricks").textContent = porchTricked;
+    document.getElementById("porchEndTitle").textContent =
+      grade === "S" ? "Legendary haul!" : grade === "A" ? "Nice haul!" : grade === "B" ? "Solid raid!" : grade === "C" ? "Getting there!" : "Better luck next block!";
+
+    if(grade === "S" || grade === "A") spawnConfetti(50);
+    document.getElementById("porchEndOverlay").classList.add("show");
+  }
+
+  function openPorchGame(){
+    if(!porchHouses.length) porchBuildStreet();
+    show("porchgame", "forward");
+    porchMakeStars();
+    porchResetGame();
+    document.getElementById("porchStartOverlay").classList.add("show");
+  }
+
+  function stopPorchGame(){
+    porchRunning = false;
+    clearTimeout(porchSpawnTimer); clearInterval(porchTickTimer);
+    porchHouses.forEach(function(h){ porchCloseHouse(h, false); });
+  }
+
+  function exitPorchGame(){
+    stopPorchGame();
+    document.getElementById("porchStartOverlay").classList.remove("show");
+    document.getElementById("porchEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
+  function closePorchGame(){
+    stopPorchGame();
+    document.getElementById("porchEndOverlay").classList.remove("show");
+    completeActiveTask();
+  }
+
   // ---------- REWARD ----------
   function goToReward(direction){
     var reward = state.rewards && state.rewards.length
@@ -2839,6 +3304,10 @@
       case "match-start": matchBeginMatching(); break;
       case "match-continue": closeMatchGame(); break;
       case "exit-match": exitMatchGame(); break;
+      case "open-porch": openPorchGame(); break;
+      case "porch-start": porchStartGame(); break;
+      case "porch-continue": closePorchGame(); break;
+      case "exit-porch": exitPorchGame(); break;
       case "toggle-mute": toggleMute(); break;
       case "nav-home": activeTaskId = null; show("splash", "back"); break;
       case "nav-chores": activeTaskId = null; show("tasklist", "back"); break;
