@@ -693,12 +693,7 @@
     font-weight:900; font-size:13px; pointer-events:none; animation: porchFloatUp .6s ease forwards;
   }
   .porch-plusfloat.treat{ color: var(--p-acid); text-shadow:0 0 8px rgba(182,255,60,0.6); }
-  .porch-plusfloat.trick{ color: var(--p-hot); text-shadow:0 0 8px rgba(255,46,99,0.6); }
   @keyframes porchFloatUp{ 0%{ transform:translate(-50%,0); opacity:1; } 100%{ transform:translate(-50%,-26px); opacity:0; } }
-
-  .porch-flash{ position:absolute; inset:0; background:var(--p-hot); opacity:0; pointer-events:none; z-index:12; mix-blend-mode:screen; }
-  .porch-flash.show{ animation: porchFlashHit .28s ease; }
-  @keyframes porchFlashHit{ 0%{opacity:0.5;} 100%{opacity:0;} }
 
   .porch-overlay{
     position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
@@ -719,11 +714,6 @@
   }
   .porch-card-eyebrow{ font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--p-candy); font-weight:800; margin-bottom:8px; }
   .porch-card-sub{ font-size:12.5px; color:var(--p-ink-dim); line-height:1.55; max-width:230px; margin:0 auto 14px; }
-  .porch-legend{ display:flex; justify-content:center; gap:18px; margin-bottom:16px; }
-  .porch-legend-item{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:9.5px; color:var(--p-ink-dim); font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
-  .porch-legend-item .ic{ font-size:22px; }
-  .porch-legend-item.treat .ic{ filter:drop-shadow(0 0 6px rgba(182,255,60,0.5)); }
-  .porch-legend-item.trick .ic{ filter:drop-shadow(0 0 6px rgba(255,46,99,0.5)); }
   .porch-btn{
     width:100%; border:none; border-radius:10px; padding:13px; cursor:pointer;
     background: linear-gradient(180deg, var(--p-acid), #7fcc1e); color:#0b1400;
@@ -1189,7 +1179,7 @@
     <button class="mini-skip-btn" data-action="exit-porch" aria-label="Go back and continue with chores">⬅️</button>
     <div class="wheel-eyebrow">Nice work!</div>
     <h2 class="wheel-title">Porch Pirate</h2>
-    <p class="wheel-sub">Tap the candy before the door swings shut. Leave the tricks alone.</p>
+    <p class="wheel-sub">Tap the candy before the door swings shut.</p>
 
     <div class="porch-stage" id="porchStage">
       <div class="porch-moon"></div>
@@ -1217,17 +1207,12 @@
 
       <div class="porch-street" id="porchStreet"></div>
       <div class="porch-ground"></div>
-      <div class="porch-flash" id="porchFlash"></div>
 
       <div class="porch-overlay show" id="porchStartOverlay">
         <div class="porch-card"><div class="porch-card-inner">
           <div class="porch-card-eyebrow">Mini-Game</div>
           <div class="porch-card-title">Porch Pirate</div>
-          <p class="porch-card-sub">30 seconds to raid every porch on the block. Tap treats, dodge tricks.</p>
-          <div class="porch-legend">
-            <div class="porch-legend-item treat"><span class="ic">🍬</span>Treat = points</div>
-            <div class="porch-legend-item trick"><span class="ic">🦇</span>Trick = don't tap</div>
-          </div>
+          <p class="porch-card-sub">30 seconds to raid every porch on the block. Tap the candy before the door swings shut.</p>
           <button class="porch-btn" data-action="porch-start">Start Raid</button>
         </div></div>
       </div>
@@ -1240,7 +1225,6 @@
           <div class="porch-stat-row">
             <div class="porch-stat"><b id="porchStatCandy">0</b><span>Candy</span></div>
             <div class="porch-stat"><b id="porchStatCombo">x1</b><span>Best Streak</span></div>
-            <div class="porch-stat"><b id="porchStatTricks">0</b><span>Tricked</span></div>
           </div>
           <button class="porch-btn" data-action="porch-continue">Continue →</button>
         </div></div>
@@ -2715,9 +2699,7 @@
   var PORCH_HOUSE_COUNT = 6;
   var PORCH_TREAT_ICONS = ['🍬','🍭','🍫','🧁'];
   var PORCH_JACKPOT_ICON = '🎃';
-  var PORCH_TRICK_ICONS = ['🦇','🕷️'];
   var PORCH_JACKPOT_CHANCE = 0.1;
-  var PORCH_TRICK_CHANCE = 0.22;
   var PORCH_HOUSE_HUES = [
     { roof:'#3a1652', body:'#241238' },
     { roof:'#4a1d63', body:'#2c1440' },
@@ -2728,7 +2710,7 @@
   ];
 
   var porchHouses = [];
-  var porchScore = 0, porchCombo = 0, porchMaxCombo = 0, porchTricked = 0, porchCandyCount = 0;
+  var porchScore = 0, porchCombo = 0, porchMaxCombo = 0, porchCandyCount = 0;
   var porchRunning = false;
   var porchSpawnTimer = null;
   var porchTickTimer = null;
@@ -2775,7 +2757,7 @@
   function porchResetGame(){
     clearTimeout(porchSpawnTimer); clearInterval(porchTickTimer);
     porchHouses.forEach(function(h){ porchCloseHouse(h, false); });
-    porchScore = 0; porchCombo = 0; porchMaxCombo = 0; porchTricked = 0; porchCandyCount = 0; porchSecondsLeft = PORCH_ROUND_SECONDS;
+    porchScore = 0; porchCombo = 0; porchMaxCombo = 0; porchCandyCount = 0; porchSecondsLeft = PORCH_ROUND_SECONDS;
     document.getElementById("porchScoreVal").textContent = "0";
     document.getElementById("porchComboVal").textContent = "x1";
     document.getElementById("porchTimerFill").style.width = "100%";
@@ -2785,16 +2767,13 @@
   function porchOpenHouse(h, kind){
     h.open = true; h.kind = kind;
     h.el.classList.add("active");
-    var icon;
-    if(kind === "jackpot") icon = PORCH_JACKPOT_ICON;
-    else if(kind === "trick") icon = PORCH_TRICK_ICONS[Math.floor(Math.random() * PORCH_TRICK_ICONS.length)];
-    else icon = PORCH_TREAT_ICONS[Math.floor(Math.random() * PORCH_TREAT_ICONS.length)];
+    var icon = kind === "jackpot" ? PORCH_JACKPOT_ICON : PORCH_TREAT_ICONS[Math.floor(Math.random() * PORCH_TREAT_ICONS.length)];
     h.itemEl.textContent = icon;
     requestAnimationFrame(function(){ h.el.classList.add("item-visible"); });
 
     var windowMs = kind === "jackpot" ? 850 : (900 - porchSecondsLeft * 3);
     h.closeTimer = setTimeout(function(){
-      if(h.open && h.kind !== "trick" && !h.el.classList.contains("item-pop")){
+      if(h.open && !h.el.classList.contains("item-pop")){
         porchCombo = 0;
         document.getElementById("porchComboVal").textContent = "x1";
       }
@@ -2839,17 +2818,6 @@
     var h = porchHouses[i];
     if(!h.open) return;
 
-    if(h.kind === "trick"){
-      porchCombo = 0;
-      porchTricked++;
-      document.getElementById("porchComboVal").textContent = "x1";
-      porchPopFloat(h, "TRICKED!", "trick");
-      var flash = document.getElementById("porchFlash");
-      flash.classList.remove("show"); void flash.offsetWidth; flash.classList.add("show");
-      porchCloseHouse(h, true);
-      return;
-    }
-
     var base = h.kind === "jackpot" ? 50 : 10;
     porchCombo++;
     porchMaxCombo = Math.max(porchMaxCombo, porchCombo);
@@ -2873,8 +2841,7 @@
       var closed = porchHouses.filter(function(h){ return !h.open; });
       if(closed.length){
         var h = closed[Math.floor(Math.random() * closed.length)];
-        var roll = Math.random();
-        var kind = roll < PORCH_TRICK_CHANCE ? "trick" : (roll < PORCH_TRICK_CHANCE + PORCH_JACKPOT_CHANCE ? "jackpot" : "treat");
+        var kind = Math.random() < PORCH_JACKPOT_CHANCE ? "jackpot" : "treat";
         porchOpenHouse(h, kind);
       }
       porchScheduleSpawn();
@@ -2907,7 +2874,6 @@
     document.getElementById("porchGradeBadge").textContent = grade;
     document.getElementById("porchStatCandy").textContent = porchCandyCount;
     document.getElementById("porchStatCombo").textContent = "x" + porchMaxComboMultiplier();
-    document.getElementById("porchStatTricks").textContent = porchTricked;
     document.getElementById("porchEndTitle").textContent =
       grade === "S" ? "Legendary haul!" : grade === "A" ? "Nice haul!" : grade === "B" ? "Solid raid!" : grade === "C" ? "Getting there!" : "Better luck next block!";
 
